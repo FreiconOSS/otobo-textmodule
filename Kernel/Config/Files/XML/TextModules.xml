@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8"?>
+<otobo_config version="2.0" init="Application">
+
+
+    <Setting Name="Frontend::NavigationModule###AdminTextModules" Required="0" Valid="1">
+        <Description Translatable="1">Text Modules Management</Description>
+        <Navigation>Addons::TextModule</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Group">
+                    <Array>
+                        <Item>admin</Item>
+                    </Array>
+                </Item>
+                <Item Key="GroupRo">
+                    <Array>
+                    </Array>
+                </Item>
+                <Item Key="Module">Kernel::Output::HTML::NavBar::ModuleAdmin</Item>
+                <Item Key="Name" Translatable="1">Text Modules</Item>
+                <Item Key="Block">Communication</Item>
+                <Item Key="Description" Translatable="1">Text Modules Management</Item>
+                <Item Key="IconBig">fa-paragraph</Item>
+                <Item Key="IconSmall"></Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::NavigationModule###AdminTextModuleCategories" Required="0" Valid="1">
+        <Description Translatable="1">Text Module Category Management</Description>
+        <Navigation>Addons::TextModule</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Group">
+                    <Array>
+                        <Item>admin</Item>
+                    </Array>
+                </Item>
+                <Item Key="GroupRo">
+                    <Array>
+                    </Array>
+                </Item>
+                <Item Key="Module">Kernel::Output::HTML::NavBar::ModuleAdmin</Item>
+                <Item Key="Name" Translatable="1">Text Module Category</Item>
+                <Item Key="Block">Communication</Item>
+                <Item Key="Description" Translatable="1">Text Module Category Management</Item>
+                <Item Key="IconBig">fa-paragraph</Item>
+                <Item Key="IconSmall">fa-folder</Item>
+            </Hash>
+        </Value>
+    </Setting>
+
+    <Setting Name="Frontend::Module###TextModuleAJAXHandler" Required="0" Valid="1">
+        <Description Translatable="1">Frontend module registration for the TextModuleAJAXHandler object.</Description>
+        <Navigation>Addons::TextModule</Navigation>
+        <Value>
+            <Item ValueType="FrontendRegistration">
+                <Hash>
+                    <Item Key="Group">
+                        <Array></Array>
+                    </Item>
+                    <Item Key="GroupRo">
+                        <Array></Array>
+                    </Item>
+                    <Item Key="Description" Translatable="1">ext Module AJAX handle</Item>
+                    <Item Key="Title" Translatable="1">Text Module AJAX handler</Item>
+                    <Item Key="NavBarName">Ticket</Item>
+                </Hash>
+            </Item>
+        </Value>
+    </Setting>
+    <Setting Name="CustomerFrontend::Module###TextModuleAJAXHandler" Required="0" Valid="1">
+        <Description Translatable="1">Frontend module registration for the TextModuleAJAXHandler object.</Description>
+        <Navigation>Addons::TextModule</Navigation>
+        <Value>
+            <Item ValueType="FrontendRegistration">
+                <Hash>
+                    <Item Key="Group">
+                        <Array></Array>
+                    </Item>
+                    <Item Key="GroupRo">
+                        <Array></Array>
+                    </Item>
+                    <Item Key="Description" Translatable="1">Text Module AJAX handle</Item>
+                    <Item Key="Title" Translatable="1">Text Module AJAX handler</Item>
+                    <Item Key="NavBarName">Ticket</Item>
+                </Hash>
+            </Item>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::Module###AdminTextModules" Required="0" Valid="1">
+        <Description Translatable="1">Frontend module registration for the AdminTextModules object in the admin
+            interface.
+        </Description>
+        <Navigation>Addons::TextModule</Navigation>
+        <Value>
+
+            <Item ValueType="FrontendRegistration">
+                <Hash>
+                    <Item Key="Group">
+                        <Array>admin</Array>
+                    </Item>
+                    <Item Key="GroupRo">
+                        <Array></Array>
+                    </Item>
+                    <Item Key="Description" Translatable="1">Admin</Item>
+                    <Item Key="Title" Translatable="1">Text Modules</Item>
+                    <Item Key="NavBarName">Admin</Item>
+                </Hash>
+            </Item>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::Module###AdminTextModuleCategories" Required="0" Valid="1">
+        <Description Translatable="1">Frontend module registration for the AdminTextModules object in the admin
+            interface.
+        </Description>
+        <Navigation>Addons::TextModule</Navigation>
+        <Value>
+
+            <Item ValueType="FrontendRegistration">
+                <Hash>
+                    <Item Key="Group">
+                        <Array>admin</Array>
+                    </Item>
+                    <Item Key="GroupRo">
+                        <Array></Array>
+                    </Item>
+                    <Item Key="Description" Translatable="1">Admin</Item>
+                    <Item Key="Title" Translatable="1">Text Modules</Item>
+                    <Item Key="NavBarName">Admin</Item>
+                </Hash>
+            </Item>
+        </Value>
+    </Setting>
+    <!--Setting Name="Frontend::Module###AdminTextModuleCategories" Required="0" Valid="1">
+        <Description Translatable="1">Frontend module registration for the AdminTextModuleCategories object in the admin
+            interface.
+        </Description>
+        <Navigation>Addons::TextModule</Navigation>
+        <Value>
+            <FrontendModuleReg>
+                <Group>admin</Group>
+                <Description>Admin</Description>
+                <Title>Text Module Categories</Title>
+                <NavBarName>Admin</NavBarName>
+                <NavBarModule>
+                    <Module>Kernel::Output::HTML::NavBar::ModuleAdmin</Module>
+                    <Name>Text Module Categories</Name>
+                    <Block>Queue</Block>
+                    <Description Translatable="1">Create and manage text module categories.</Description>
+                    <Prio>149</Prio>
+                </NavBarModule>
+            </FrontendModuleReg>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::Module###AdminQueueTextModules" Required="0" Valid="1">
+        <Description Translatable="1">Frontend module registration for the AdminQueueTextModules object in the admin
+            area.
+        </Description>
+        <Navigation>Addons::TextModule</Navigation>
+        <Value>
+            <FrontendModuleReg>
+                <Group>admin</Group>
+                <Description>Admin</Description>
+                <Title>Text Modules &lt;-&gt; Queues</Title>
+                <NavBarName>Admin</NavBarName>
+                <NavBarModule>
+                    <Module>Kernel::Output::HTML::NavBar::ModuleAdmin</Module>
+                    <Name>Text Modules &lt;-&gt; Queues</Name>
+                    <Block>Queue</Block>
+                    <Description Translatable="1">Assign text templates to queues.</Description>
+                    <Prio>155</Prio>
+                </NavBarModule>
+            </FrontendModuleReg>
+        </Value>
+    </Setting-->
+
+<!--    <Setting Name="Loader::Agent::CommonJS###000-TextModules" Required="1" Valid="1">
+        <Description Translatable="1">List of JS files to always be loaded for the agent interface.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Core::Web</SubGroup>
+        <Value>
+            <Array>
+                <Item>Core.TextModules.js</Item>
+            </Array>
+        </Value>
+    </Setting> -->
+
+
+    <Setting Name="Loader::Module::AgentTicketPhone###020-TextModules" Required="0" Valid="1">
+        <Description Translatable="1">Loader module registration for the agent interface.</Description>
+        <Navigation>Frontend::Agent::ModuleRegistration::Loader</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="JavaScript">
+                    <Array>
+                        <Item>Core.TextModules.js</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Loader::Module::AgentTicketNote###020-TextModules" Required="0" Valid="1">
+        <Description Translatable="1">Loader module registration for the agent interface.</Description>
+        <Navigation>Frontend::Agent::ModuleRegistration::Loader</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="JavaScript">
+                    <Array>
+                        <Item>Core.TextModules.js</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Loader::Module::AgentTicketCompose###020-TextModules" Required="0" Valid="1">
+        <Description Translatable="1">Loader module registration for the agent interface.</Description>
+        <Navigation>Frontend::Agent::ModuleRegistration::Loader</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="JavaScript">
+                    <Array>
+                        <Item>Core.TextModules.js</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Loader::Module::AgentTicketEmail###020-TextModules" Required="0" Valid="1">
+        <Description Translatable="1">Loader module registration for the agent interface.</Description>
+        <Navigation>Frontend::Agent::ModuleRegistration::Loader</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="JavaScript">
+                    <Array>
+                        <Item>Core.TextModules.js</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Loader::Module::AgentTicketPhoneOutbound###020-TextModules" Required="0" Valid="1">
+        <Description Translatable="1">Loader module registration for the agent interface.</Description>
+        <Navigation>Frontend::Agent::ModuleRegistration::Loader</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="JavaScript">
+                    <Array>
+                        <Item>Core.TextModules.js</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Loader::Module::AgentTicketPhoneInbound###020-TextModules" Required="0" Valid="1">
+        <Description Translatable="1">Loader module registration for the agent interface.</Description>
+        <Navigation>Frontend::Agent::ModuleRegistration::Loader</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="JavaScript">
+                    <Array>
+                        <Item>Core.TextModules.js</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Loader::Module::AgentTicketEmailOutbound###020-TextModules" Required="0" Valid="1">
+        <Description Translatable="1">Loader module registration for the agent interface.</Description>
+        <Navigation>Frontend::Agent::ModuleRegistration::Loader</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="JavaScript">
+                    <Array>
+                        <Item>Core.TextModules.js</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Loader::Module::AgentTicketClose###020-TextModules" Required="0" Valid="1">
+        <Description Translatable="1">Loader module registration for the agent interface.</Description>
+        <Navigation>Frontend::Agent::ModuleRegistration::Loader</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="JavaScript">
+                    <Array>
+                        <Item>Core.TextModules.js</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Loader::Module::AgentTicketPending###020-TextModules" Required="0" Valid="1">
+        <Description Translatable="1">Loader module registration for the agent interface.</Description>
+        <Navigation>Frontend::Agent::ModuleRegistration::Loader</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="JavaScript">
+                    <Array>
+                        <Item>Core.TextModules.js</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Loader::Module::AgentTicketPriority###020-TextModules" Required="0" Valid="1">
+        <Description Translatable="1">Loader module registration for the agent interface.</Description>
+        <Navigation>Frontend::Agent::ModuleRegistration::Loader</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="JavaScript">
+                    <Array>
+                        <Item>Core.TextModules.js</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+
+</otobo_config>

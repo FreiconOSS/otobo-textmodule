@@ -1,0 +1,587 @@
+# --
+# Copyright (C) 2006-2020 c.a.p.e. IT GmbH, https://www.cape-it.de
+# --
+# This software comes with ABSOLUTELY NO WARRANTY. For details, see
+# the enclosed file LICENSE for license information (AGPL). If you
+# did not receive this file, see https://www.gnu.org/licenses/agpl.txt.
+# --
+
+
+<div class="MainBox ARIARoleMain LayoutFixedSidebar SidebarFirst">
+    <h1>[% Translate("Text Modules Management") | html %]</h1>
+
+    <div class="SidebarColumn">
+[% RenderBlockStart("ActionOverview") %]
+        <div class="WidgetSimple">
+            <div class="Header">
+                <h2><span>[% Translate("Actions") | html %]</span></h2>
+            </div>
+            <div class="Content">
+                <ul class="ActionList">
+                    <li>
+                        <a href="[% Env("Baselink") %]Action=[% Env("Action") %]" class="CallForAction Fullsize Back">
+                            <span>
+                                <i class="fa fa-caret-left"></i>  [% Translate("Go to overview") | html %]
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+[% RenderBlockEnd("ActionOverview") %]
+
+[% RenderBlockStart("TextModuleSearch") %]
+        <div class="WidgetSimple">
+            <div class="Header">
+                 <h2><span>[% Translate("Filter Overview") | html %]</span></h2>
+            </div>
+            <div class="Content">
+                <form name="form" action="[% Env("CGIHandle") %]" method="get">
+                    <input type="hidden" name="Action" value="[% Env("Action") %]"/>
+                    <input type="hidden" id="SelectedCategoryID" name="SelectedCategoryID" value="[% Data.SelectedCategoryID %]"/>
+                    <fieldset class="TableLike FixedLabelSmall">
+                        <label for="SearchName">[% Translate("Name") | html %]:</label>
+                        <p class="Value">
+                            <input type="text" id="SearchName" name="Name" size="18" value="[% Data.Name %]"/>
+                        </p>
+                        <div class="Clear"></div>
+                        <label for="Language">[% Translate("Language") | html %]:</label>
+                        <p class="Value">
+                            [% Data.LanguageOption %]
+                        </p>
+                        <div class="Clear"></div>
+                        <label for="ValidID">[% Translate("Valid") | html %]:</label>
+                        <p class="Value">
+                            [% Data.ValidOption %]
+                        </p>
+                        <div class="Clear"></div>
+                        <label for="SearchLimit">[% Translate("Limit Results") | html %]:</label>
+                        <p class="Value">
+                            <input type="text" id="SearchLimit" name="Limit" size="18" value="[% Data.Limit %]"/>
+                        </p>
+                        <div class="Clear"></div>
+                        <button type="submit" id="ShowButton" name="Show" value="[% Translate("View") | html %]" class="CallForAction Fullsize Center"><span><i class="fa fa-search"></i> [% Translate("View") | html %]</span></button>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+[% RenderBlockEnd("TextModuleSearch") %]
+
+[% RenderBlockStart("ActionAdd") %]
+        <div class="WidgetSimple">
+            <div class="Header">
+                 <h2><span>[% Translate("Add text module") | html %]</span></h2>
+            </div>
+            <div class="Content">
+                <form name="form" action="[% Env("CGIHandle") %]" method="get">
+                    <input type="hidden" name="Action" value="[% Env("Action") %]"/>
+                    <input type="hidden" name="Subaction" value="New"/>
+                    <button type="submit" name="New" value="[% Translate("Click here to add a text module") | html %]" class="CallForAction Fullsize Center">
+                        <span><i class="fa fa-plus-square"></i> [% Translate("Add text module") | html %]</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+[% RenderBlockEnd("ActionAdd") %]
+[% RenderBlockStart("TextModuleCategoryTree") %]
+        <div class="WidgetSimple">
+            <div class="Header">
+                 <h2><span>[% Translate("Category Selection") | html %]</span></h2>
+            </div>
+            <div class="Content CategoryTreeContent">
+                <div id="CategoryTreeControl" class="SpacingBottom"><a href="?#" class="Collaps">[% Translate("Collapse All") | html %]</a> | <a href="?#" class="Expand">[% Translate("Expand All") | html %]</a></div>
+                <div id="CategorySelectionContainer" class="JSTreeSelectionContainer">
+                    [% Data.CategoryTree %]
+                </div>
+            </div>
+        </div>
+[% RenderBlockEnd("TextModuleCategoryTree") %]
+#[% RenderBlockStart("Download") %]
+#        <div class="WidgetSimple">
+#            <div class="Header">
+#                 <h2><span>[% Translate("Download all text modules") | html %]</span></h2>
+#            </div>
+#            <div class="Content">
+#                <form name="form" action="[% Env("CGIHandle") %]" method="get">
+#                <form name="form" action="[% Env("CGIHandle") %]" method="get">
+#                    <input type="hidden" name="Action" value="[% Env("Action") %]"/>
+#                    <input type="hidden" name="DownloadType" value="[% Data.DownloadType %]"/>
+#                    <input type="hidden" name="Subaction" value="Download"/>
+#                    <button type="submit" name="Download" value="[% Translate("Download") | html %]" class="CallForAction Fullsize Center">
+#                        <span>
+#                            <i class="fa fa-download"></i> [% Data.DownloadType %]-Download
+#                        </span>
+#                    </button>
+#                </form>
+#            </div>
+#        </div>
+#[% RenderBlockEnd("Download") %]
+#[% RenderBlockStart("Upload") %]
+#        <div class="WidgetSimple">
+#            <div class="Header">
+#                 <h2><span>[% Translate("Upload text modules") | html %]</span></h2>
+#            </div>
+#            <div class="Content">
+#                <form name="UploadForm" action="[% Env("CGIHandle") %]" method="post" enctype="multipart/form-data" >
+#                    <input type="hidden" name="Action" value="[% Env("Action") %]"/>
+#                    <input type="hidden" name="Subaction" value="Upload"/>
+#                    <input type="hidden" name="UploadType" value="[% Data.UploadType %]"/>
+#                    <input type="hidden" name="FormID" value="[% Data.FormID %]"/>
+#                    <input name="file_upload" type="file" size="25" class="Fixed W100pc" />
+#                    <button type="submit" name="Upload" value="[% Translate("Upload") | html %]" class="CallForAction Fullsize Center">
+#                        <span>
+#                            <i class="fa fa-upload"></i>  [% Data.UploadType %]-Upload
+#                        </span>
+#                    </button>
+#                </form>
+#[% RenderBlockStart("UploadResult") %]
+#                <br /><br />
+#                 <h2><span>[% Translate("Result of the upload") | html %]:</span></h2>
+#                <div>[% Data.UploadMessage %]</div>
+#                <fieldset class="TableLike FixedLabel">
+#                    <label>[% Translate("entries uploaded") | html %]:</label>
+#                    <p class="Value">
+#                        [% Data.CountUploaded %]
+#                    </p>
+#                    <div class="Clear"></div>
+#                    <label>[% Translate("updated") | html %]:</label>
+#                    <p class="Value">
+#                        [% Data.CountUpdated %]
+#                    </p>
+#                    <div class="Clear"></div>
+#                    <label>[% Translate("update failed") | html %]:</label>
+#                    <p class="Value">
+#                        [% Data.CountUpdateFailed %]
+#                    </p>
+#                    <div class="Clear"></div>
+#                    <label>[% Translate("added") | html %]:</label>
+#                    <p class="Value">
+#                        [% Data.CountAdded %]
+#                    </p>
+#                    <div class="Clear"></div>
+#                    <label>[% Translate("insert failed") | html %]:</label>
+#                    <p class="Value">
+#                        [% Data.CountInsertFailed %]
+#                    </p>
+#                    <div class="Clear"></div>
+#                    <br/>
+#                    <a class="CallForAction Download" href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=DownloadResult;XMLResultFileID=[% Data.XMLResultFileID | html %];FormID=[% Data.FormID | html %]" title="[% Translate("Download complete result of your upload") | html %]">
+#                        <span>
+#                            <i class="fa fa-download"></i>
+#                            [% Translate("Download result as XML") | html %]
+#                        </span>
+#                    </a>
+#                </fieldset>
+#[% RenderBlockEnd("UploadResult") %]
+#            </div>
+#        </div>
+#[% RenderBlockEnd("Upload") %]
+
+[% RenderBlockStart("Hint") %]
+        <div class="WidgetSimple">
+            <div class="Header">
+                 <h2><span>[% Translate("Hint") | html %]</span></h2>
+            </div>
+            <div class="Content">
+                <p class="FieldExplanation">
+                    [% Translate("A text module is default text to write faster answer (with default text) to customers.") | html %]
+                </p>
+#                <p>
+#                    [% Translate("Attention") | html %]:<br/><a href="[% Env("Baselink") %]Action=AdminQueueTextModules">[% Translate("Don't forget to add a new text module a queue!") | html %]</a>
+#                </p>
+            </div>
+        </div>
+[% RenderBlockEnd("Hint") %]
+
+    </div>
+    <div class="ContentColumn">
+
+[% RenderBlockStart("OverviewList") %]
+        <div class="WidgetSimple">
+            <div class="Header">
+                 <h2><span>[% Translate("List for category") | html %]: [% Data.SelectedCategoryName %]</span></h2>
+            </div>
+            <div class="Content">
+                <table id="TextModuleTable" class="DataTable">
+                    <thead>
+                        <tr>
+                            <th class="Sortable"><a href="#">[% Translate("Name") | html %]</a></th>
+                            <th class="Sortable"><a href="#">[% Translate("Frontend") | html %]</a></th>
+                            <th class="Sortable"><a href="#">[% Translate("Language") | html %]</a></th>
+                            <th class="Sortable"><a href="#">[% Translate("Valid") | html %]</a></th>
+                            <th>[% Translate("Delete") | html %]</th>
+                            <th>[% Translate("Edit") | html %]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+[% RenderBlockStart("OverviewListRow") %]
+                        <tr>
+                            <td>
+                                <a class="AsBlock" href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Change;ID=[% Data.ID | uri %]">[% Data.Name | html %]</a>
+                                <input type="hidden" class="SortData" value="[% Data.Name | html %]" />
+                            </td>
+                            <td title="[% Translate("A: agent frontend; C: customer frontend, P: public frontend") | html %]">
+                                [% Data.FrontendInfoStrg | html %]
+                                <input type="hidden" class="SortData" value="[% Data.FrontendInfoStrg | html %]" />
+                            </td>
+                            <td>
+                                [% Data.Language | truncate(26) | html %]
+                                <input type="hidden" class="SortData" value="[% Data.Language | html %]" />
+                            </td>
+                            <td>
+                                [% Translate(Data.Valid) | html %]
+                                <input type="hidden" class="SortData" value="[% Data.Valid | html %]" />
+                            </td>
+                            <td>
+                                <a href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Delete;ID=[% Data.ID | html %]">[% Translate("delete") | html %]</a>
+                            </td>
+                            <td>
+                                <a href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Change;ID=[% Data.ID | html %]">[% Translate("edit") | html %]</a>
+                            </td>
+                        </tr>
+[% RenderBlockEnd("OverviewListRow") %]
+[% RenderBlockStart("OverviewListEmpty") %]
+                        <tr>
+                            <td colspan="6">
+                                [% Translate("No existing or matching text module") | html %]
+                            </td>
+                        </tr>
+[% RenderBlockEnd("OverviewListEmpty") %]
+                    </tbody>
+                </table>
+            </div>
+        </div>
+[% RenderBlockEnd("OverviewList") %]
+
+[% RenderBlockStart("Edit") %]
+        <div class="WidgetSimple">
+            <div class="Header">
+                 <h2><span>[% Translate("Text module") | html %]</span></h2>
+            </div>
+            <div class="Content">
+                <form name="form1" action="[% Env("CGIHandle") %]" method="post" class="PreventMultipleSubmits Validate">
+                    <input type="hidden" name="Action" value="[% Env("Action") %]"/>
+                    <input type="hidden" name="Subaction" value="Save"/>
+                    <input type="hidden" name="ID" value="[% Data.ID | html %]"/>
+                    <fieldset class="TableLike">
+                        <label class="Mandatory" for="Name"><span class="Marker">*</span> [% Translate("Name") | html %]:</label>
+                        <p class="Value">
+                            <input type="text" id="Name" name="Name" value="[% Data.Name | html %]" size="35" class="Validate_Required [% Data.NameInvalid | html %]" maxlength="80"/>
+                            <div id="NameError" class="TooltipErrorMessage">
+                                <p>[% Translate("This field is required and its content can not be longer than %s characters.", "80") | html %]</p>
+                            </div>
+                            <div id="NameServerError" class="TooltipErrorMessage">
+                                <p>[% Translate("This field is required and its content can not be longer than %s characters.", "80") | html %]</p>
+                            </div>
+                        </p>
+                        <div class="Clear"></div>
+                        <label style="display: none">[% Translate("Available in") | html %]:</label>
+                        <p class="Value"  style="display: none">
+                            <input type="checkbox" id="AgentFrontend"    name="Frontend" value="Agent"    [% Data.AgentChecked | html %]/> <label for="AgentFrontend">[% Translate("Agent Frontend") | html %]</label><br />
+                            <input type="checkbox" id="CustomerFrontend" name="Frontend" value="Customer" [% Data.CustomerChecked | html %]/> <label for="CustomerFrontend">[% Translate("Customer Frontend") | html %]</label><br />
+                            <input type="checkbox" id="PublicFrontend"   name="Frontend" value="Public"   [% Data.PublicChecked | html %]/> <label for="PublicFrontend">[% Translate("Public Frontend") | html %]</label><br />
+                        </p>
+                        <div class="Clear"></div>
+                        <label  style="display: none" for="Keywords">[% Translate("Keywords") | html %]:</label>
+                        <p class="Value"  style="display: none">
+                            <input type="text" id="Keywords" name="Keywords" value="[% Data.Keywords | html %]" size="60" class="[% Data.KeywordsInvalid | html %]" maxlength="200"/>
+                            <div id="KeywordsError" class="TooltipErrorMessage">
+                                <p>[% Translate("This field's content can not be longer than %s characters.", "200") | html %]</p>
+                            </div>
+                            <div id="KeywordsServerError" class="TooltipErrorMessage">
+                                <p>[% Translate("This field's content can not be longer than %s characters.", "200") | html %]</p>
+                            </div>
+                        </p>
+                        <div class="Clear"></div>
+                        <label for="Subject">[% Translate("Subject") | html %]:</label>
+                        <p class="Value">
+                            <input type="text" id="Subject" name="Subject" value="[% Data.Subject | html %]" size="60" class="[% Data.SubjectInvalid | html %]" maxlength="250"/>
+                            <div id="SubjectError" class="TooltipErrorMessage">
+                                <p>[% Translate("This field's content can not be longer than %s characters.", "250") | html %]</p>
+                            </div>
+                            <div id="SubjectServerError" class="TooltipErrorMessage">
+                                <p>[% Translate("This field's content can not be longer than %s characters.", "250") | html %]</p>
+                            </div>
+                        </p>
+                        <div class="Clear"></div>
+                        <label for="RichText">[% Translate("Text module") | html %]:</label>
+                        <p class="Value">
+                            <div class="RichTextField">
+[% RenderBlockStart("RichText") %]
+                                [% InsertTemplate("RichTextEditor.tt") %]
+[% RenderBlockEnd("RichText") %]
+                                <textarea id="RichText" class="RichText [% Data.RichTextInvalid | html %]" name="TextModule" title="Message body" rows="15" cols="[% Config("Ticket::Frontend::TextAreaNote") %]">[% Data.TextModule | html %]</textarea>
+                                <div id="RichTextError" class="TooltipErrorMessage">
+                                    <p>[% Translate("This field's content can not be longer than %s characters.", "10000") | html %]</p>
+                                </div>
+                                <div id="RichTextServerError" class="TooltipErrorMessage">
+                                    <p>[% Translate("This field's content can not be longer than %s characters.", "10000") | html %]</p>
+                                </div>
+                            </div>
+                        </p>
+
+                        <div class="Clear"></div>
+                        <label for="IsVisibleForCustomer">[% Translate("IsVisibleForCustomer") | html %]:</label>
+                        <p class="Value">
+                            [% Data.IsVisibleForCustomerStrg %]
+                        </p>
+
+                        <div class="Clear"></div>
+                        <label class="" for="TimeUnits">[% Translate("TimeUnits") | html %]:</label>
+                        <p class="Value">
+                            <input type="text" id="TimeUnits" name="TimeUnits" value="[% Data.TimeUnits | html %]" size="60" class="[% Data.TimeUnitsInvalid | html %]" maxlength="250"/>
+                        <div id="TimeUnitsError" class="TooltipErrorMessage">
+                            <p>[% Translate("This field's content can not be longer than %s characters.", "250") | html %]</p>
+                        </div>
+                        <div id="TimeUnitsServerError" class="TooltipErrorMessage">
+                            <p>[% Translate("This field's content can not be longer than %s characters.", "250") | html %]</p>
+                        </div>
+                        </p>
+
+                        <div class="Clear"></div>
+                        <label  style="display: none" class="" for="LanguageEdit">[% Translate("Language") | html %]:</label>
+                        <p  style="display: none" class="Value">
+                            [% Data.LanguageEditOption %]
+                        </p>
+                        <div class="Clear"></div>
+                        <label class="" for="AssignedCategoryIDs">[% Translate("Category Assignment") | html %]:</label>
+                        <p class="Value">
+                            [% Data.TextModuleCategoryStrg %]
+                        </p>
+                        <div class="Clear"></div>
+                        <label class="" for="AssignedQueueIDs">[% Translate("Queue Assignment") | html %]:</label>
+                        <p class="Value">
+                            [% Data.QueueTextModuleStrg %]
+                        </p>
+                        <div class="Clear"></div>
+[% RenderBlockStart("EditTicketType") %]
+                        <label  style="display: none" class="" for="AssignedTicketTypeIDs">[% Translate("Ticket Type Assignment") | html %]:</label>
+                        <p  style="display: none" class="Value">
+                            [% Data.TicketTypeTextModuleStrg %]
+                        </p>
+                        <div class="Clear"></div>
+[% RenderBlockEnd("EditTicketType") %]
+                        <label  style="display: none" class="" for="AssignedTicketTypeIDs">[% Translate("Ticket State Assignment") | html %]:</label>
+                        <p  style="display: none" class="Value">
+                            [% Data.TicketStateTextModuleStrg %]
+                        </p>
+                        <div class="Clear"></div>
+                        <label class="" for="ValidID">[% Translate("Valid") | html %]:</label>
+                        <p class="Value">
+                            [% Data.ValidOption %]
+                            <div id="ValidIDError" class="TooltipErrorMessage">
+                                <p>[% Translate("This field is required.") | html %]</p>
+                            </div>
+                            <div id="ValidIDServerError" class="TooltipErrorMessage">
+                                <p>[% Translate("This field is required.") | html %]</p>
+                            </div>
+                        </p>
+                        <div class="Clear"></div>
+
+                        <div class="Field SpacingTop">
+                            <button class="Primary CallForAction" type="submit" value="[% Translate("Submit") | html %]"/>
+                                <span>[% Translate("Submit") | html %]</span>
+                            </button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+[% RenderBlockEnd("Edit") %]
+
+#[% RenderBlockStart("EditNote") %]
+#        <div class="WidgetSimple SpacingTop">
+#            <div class="Header">
+#                 <h2><span>[% Translate("Reference") | html %]</span></h2>
+#            </div>
+#            <div class="Content">
+#
+#                <p>[% Translate("You can use the following tags") | html %]:</p>
+#                <dl>
+#                    <dt><code>&lt;KIX_OWNER_*&gt;</code></dt>
+#                    <dd>
+#                        [% Translate("Ticket owner options") | html %] ([% Translate("e. g.") | html %]
+#                        <code>&lt;KIX_OWNER_UserFirstname&gt;</code>).
+#                    </dd>
+#
+#                    <dt><code>&lt;KIX_RESPONSIBLE_*&gt;</code></dt>
+#                    <dd>
+#                        [% Translate("Ticket responsible options") | html %] ([% Translate("e. g.") | html %]
+#                        <code>&lt;KIX_RESPONSIBLE_UserFirstname&gt;</code>).
+#                    </dd>
+#
+#                    <dt><code>&lt;KIX_CURRENT_*&gt;</code></dt>
+#                    <dd>
+#                        [% Translate("Options of the current user who requested this action") | html %] ([% Translate("e. g.") | html %]
+#                        <code>&lt;KIX_CURRENT_UserFirstname&gt;</code>).
+#                    </dd>
+#
+#                    <dt><code>&lt;KIX_TICKET_*&gt;</code></dt>
+#                    <dd>
+#                        [% Translate("Options of the ticket data") | html %] ([% Translate("e. g.") | html %]
+#                        <code>&lt;KIX_TICKET_TicketNumber>, &lt;KIX_TICKET_TicketID&gt;, &lt;KIX_TICKET_Queue&gt;, &lt;KIX_TICKET_State&gt;</code>).
+#                    </dd>
+#
+#                    <dt><code>&lt;KIX_CUSTOMER_DATA_*&gt;</code></dt>
+#                    <dd>
+#                        [% Translate("Options of the current contact data") | html %] ([% Translate("e. g.") | html %]
+#                        <code>&lt;KIX_CUSTOMER_DATA_UserFirstname&gt;</code>).
+#                    </dd>
+#
+#                    <dt><code>&lt;KIX_CONFIG_*&gt;</code></dt>
+#                    <dd>
+#                        [% Translate("Config options") | html %] ([% Translate("e. g.") | html %] <code>&lt;KIX_CONFIG_HttpType&gt;</code>).
+#                    </dd>
+#                </dl>
+#
+#                <p class="SpacingTop">
+#                    <h4>[% Translate("Example") | html %]:</h4>
+#                </p>
+#                <fieldset class="TableLike FixedLabelSmall">
+#                    <label for="ExampleSubject">[% Translate("Subject") | html %]:</label>
+#                    <div class="Field">
+#                        <input id="ExampleSubject" type="text" name="Subject" value="Just an example with &lt;KIX_CUSTOMER_SUBJECT[18]&gt;" class="W75pc" maxlength="80" readonly="readonly"/>
+#                    </div>
+#                    <label for="ExampleNotification">[% Translate("Text") | html %]:</label>
+#                    <div class="Field">
+#                        <textarea rows="5" cols="60" name="ExampleNotification" id="ExampleNotification" readonly="readonly">
+#Hi &lt;KIX_CUSTOMER_FROM&gt;,
+#
+#your ticket was classified and assigned to "&lt;KIX_TICKET_Queue&gt;"!
+#
+#Greetings,
+#&lt;KIX_CURRENT_UserFirstname&gt;
+#                        </textarea>
+#                    </div>
+#                </fieldset>
+#            </div>
+#        </div>
+#[% RenderBlockEnd("EditNote") %]
+    </div>
+</div>
+
+<script language="JavaScript" type="text/javascript">//<![CDATA[
+[% RenderBlockStart("QueueList") %]
+  [% Data.AllQueuesArray %]
+[% RenderBlockEnd("QueueList") %]
+  [% Data.SelQueuesArray %]
+
+  if (window.addEventListener) window.addEventListener("load", updateQueueList, false);
+  else if (window.attachEvent) window.attachEvent("onload", updateQueueList);
+  else window.onload = updateQueueList;
+
+  function deleteHelptext() {
+    document.form1.Subaction.value = 'Delete';
+    document.form1.submit();
+  }
+
+  function listHelptext() {
+    document.form1.Subaction.value = 'ListHelpTexts';
+    document.form1.submit();
+  }
+  function updateQueueList() {
+    if ( !document.getElementsByName("LanguageEdit")[0] && !document.getElementsByName("AssignedQueueIDs")[0] ) return;
+
+    var selectedLang = document.getElementsByName("LanguageEdit")[0].value,
+        queueSelection = document.getElementsByName("AssignedQueueIDs")[0];
+
+    while (queueSelection.options.length > 0) {
+      queueSelection.options[queueSelection.options.length - 1] = null;
+    }
+
+    for (var j=0; j < arrQueues.length; j++) {
+      var currQueue = arrQueues[j].split(":::::"),
+          matchRegExp = new RegExp( ".*$" ),
+          langMatched = matchRegExp.test( currQueue[1] );
+
+      if ( selectedLang && [% Config("TextModule::LanguageQueueMatching") %] ) {
+        matchRegExp = new RegExp( ".*::" + selectedLang + "::.*$" );
+        langMatched = matchRegExp.test( currQueue[1] );
+
+        if (!langMatched) {
+          matchRegExp = new RegExp( ".*::" + selectedLang + "$");
+          langMatched = matchRegExp.test( currQueue[1] );
+        }
+      }
+
+      if( currQueue[0] && currQueue[1] && langMatched ) {
+        var isSelected = false;
+        for (var k=0; k<arrSelQueues.length; k++) {
+          if ( arrSelQueues[k] == currQueue[0] ) isSelected = true;
+        }
+        var newOption = new Option(currQueue[1], currQueue[0], false, isSelected);
+      }
+      queueSelection.options[queueSelection.options.length] = newOption;
+    }
+    sortOptions( queueSelection );
+  }
+
+  function compareOptionText(a,b) {
+    return a.text!=b.text ? a.text<b.text ? -1 : 1 : 0;
+  }
+
+  function sortOptions(list) {
+    var items = list.options.length, tmpArray = new Array(items);
+    for ( i=0; i<items; i++ ) tmpArray[i] = new Option(list.options[i].text,list.options[i].value, false, list.options[i].selected);
+    tmpArray.sort(compareOptionText);
+    for ( i=0; i<items; i++ ) list.options[i] = new Option(tmpArray[i].text,tmpArray[i].value, false, tmpArray[i].selected);
+  }
+
+  function LoadCategory(CategoryID) {
+      $('#SelectedCategoryID').val(CategoryID);
+      $('#ShowButton').click();
+  }
+
+//]]></script>
+[% WRAPPER JSOnDocumentComplete %]
+<script type="text/javascript">//<![CDATA[
+
+var SelectedNodeID = $('#CategorySelectionContainer').find('.TextModuleCategory.selected').closest('li').attr('id');
+
+// create tree
+$('#CategorySelectionContainer').jstree({
+    core: {
+        animation: 70,
+        expand_selected_onload: true,
+        themes: {
+            name: 'InputField',
+            variant: 'Tree',
+            icons: true,
+            dots: true,
+        }
+    },
+    types : {
+      default : {
+        icon : 'fa fa-folder-open-o'
+      },
+    },
+    plugins: [ 'types' ]
+});
+
+$('#CategorySelectionContainer').on("click",'a',function(e) {
+    var NoReload = $(this).hasClass('NoReload');
+    if ( !NoReload ) {
+        window.location.href = $(this).attr("href");
+    }
+});
+
+// expand all
+$('.Expand').bind('click',function(event){
+    $('#CategorySelectionContainer').jstree('open_all');
+    event.preventDefault();
+});
+
+// collaps all
+$('.Collaps').bind('click',function(event){
+    $('#CategorySelectionContainer').jstree('close_all');
+    event.preventDefault();
+});
+
+//]]></script>
+[% END %]
+[% WRAPPER JSOnDocumentComplete %]
+<script type="text/javascript">//<![CDATA[
+$('#ValidID_Search').width(114);
+$('#Language_Search').width(114);
+//]]></script>
+[% END %]
