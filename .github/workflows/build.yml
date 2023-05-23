@@ -1,27 +1,58 @@
-# This is a basic workflow to help you get started with Actions
+name: Build OPM
 
-name: CI
-
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
+  release:
+    types: [ published ]
+
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
+  # allows for manual workflow execution
   workflow_dispatch:
 
+
 jobs:
-  build:
+  build-opm:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v2
-    - uses: FreiconOSS/action-build-opm@v2
-      with:
-        filename: TextModules.sopm 
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.3
-      with:
-         name: OPM
-         path: "*.opm"
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Calculate package version
+        run: |
+          echo "VERSION=$(git describe --tag --abbrev=7 | sed s/-/./g)" >> $GITHUB_ENV
+          echo "NAME=TextModule" >> $GITHUB_ENV
+
+      - name: Build OPM package
+        uses: freiconoss/action-opm-build@v1
+        with:
+          name: ${{ env.NAME }}
+          version: ${{ env.VERSION }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.NAME }}
+          path: ${{ env.NAME }}-${{ env.VERSION }}.opm
+          retention-days: 5
+  
+      - name: Get release
+        if: always() && github.event_name == 'release'
+        id: get_release
+        uses: bruceadams/get-release@v1.2.3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+  
+      - name: Upload release artifact
+        if: always() &&  github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ${{ env.NAME }}-${{ env.VERSION }}.opm
+          asset_name: ${{ env.NAME }}-${{ env.VERSION }}.opm
+          asset_content_type: application/octet-stream
