@@ -1,14 +1,11 @@
 # --
-# Copyright (C) 2019-2022 Rother OSS GmbH, https://otobo.de/
-# Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
 # Copyright (C) 2006-2020 c.a.p.e. IT GmbH, https://www.cape-it.de
-# Copyright (C) 2023 Freicon GmbH & Co.KG, https://www.freicon.de
+# Copyright (C) 2023 FREICON GmbH & Co.KG, https://www.freicon.de
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file LICENSE for license information (AGPL). If you
 # did not receive this file, see https://www.gnu.org/licenses/agpl.txt.
 # --
-
 package Kernel::Output::HTML::KIXSidebar::TextModules;
 
 use strict;
@@ -105,17 +102,3 @@ sub Run {
     return $Content;
 }
 1;
-
-=back
-
-=head1 TERMS AND CONDITIONS
-
-This software is part of the KIX project
-(L<https://www.kixdesk.com/>).
-
-This software comes with ABSOLUTELY NO WARRANTY. For details, see the enclosed file
-LICENSE for license information (AGPL). If you did not receive this file, see
-
-<https://www.gnu.org/licenses/agpl.txt>.
-
-=cut
