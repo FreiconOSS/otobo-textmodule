@@ -1,18 +1,10 @@
 # --
-# OTOBO is a web-based ticketing system for service organisations.
+# Copyright (C) 2006-2020 c.a.p.e. IT GmbH, https://www.cape-it.de
+# Copyright (C) 2023 FREICON GmbH & Co.KG, https://www.freicon.de
 # --
-# Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
-# Copyright (C) 2019-2022 Rother OSS GmbH, https://otobo.de/
-# Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
-# --
-# This program is free software: you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation, either version 3 of the License, or (at your option) any later version.
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+# This software comes with ABSOLUTELY NO WARRANTY. For details, see
+# the enclosed file LICENSE for license information (AGPL). If you
+# did not receive this file, see https://www.gnu.org/licenses/agpl.txt.
 # --
 
 package Kernel::Modules::AdminTextModules;
@@ -113,40 +105,6 @@ sub Run {
         Sort     => 'TreeView',
     );
 
-    # build queue selection
-    my %QueueData = $QueueObject->QueueList( Valid => 1 );
-    my $QueueSize = ( scalar keys %QueueData < 10 ) ? keys %QueueData : 10;
-    $Param{QueueTextModuleStrg} = $LayoutObject->BuildSelection(
-        Data     => \%QueueData,
-        Name     => 'AssignedQueueIDs',
-        Multiple => 1,
-        Size     => ( $QueueSize < 3 ) ? 3 : $QueueSize,
-        Class    => 'Modernize',
-        TreeView => 1,
-        Sort     => 'TreeView',
-    );
-
-    $Param{SelQueuesArray} = 'var arrSelQueues = new Array();';
-    $Param{AllQueuesArray} = 'var arrQueues = new Array();';
-    my $Index = 0;
-    for my $QueueID ( keys %QueueData ) {
-        my $QueueName = $QueueData{$QueueID};
-        $QueueName    =~ s/\//\\\//g;
-        $Param{AllQueuesArray} .= 'arrQueues['
-            . $Index
-            . '] = "'
-            . $QueueID
-            . ':::::'
-            . $QueueName
-            . '";';
-        $Index++;
-    }
-
-    $LayoutObject->Block(
-        Name => 'QueueList',
-        Data => \%Param,
-    );
-
     # build ticket type selection
     my %TicketTypeData = $TypeObject->TypeList( Valid => 1 );
     my $TypeSize = ( scalar keys %TicketTypeData < 10 ) ? keys %TicketTypeData : 10;
@@ -201,7 +159,7 @@ sub Run {
     # ------------------------------------------------------------------------ #
     if (
         defined $Self->{Subaction}
-        && ( ( $Self->{Subaction} eq 'Change' && $GetParam{ID} ) || $Self->{Subaction} eq 'New' )
+            && ( ( $Self->{Subaction} eq 'Change' && $GetParam{ID} ) || $Self->{Subaction} eq 'New' )
     ) {
 
         my %TextModuleData = ();
@@ -224,8 +182,9 @@ sub Run {
                 1 => 'Yes',
                 2 => 'No',
             },
-            PossibleNone => 1,
+            PossibleNone => 0,
             Class        => 'Modernize',
+            SelectedID   => 2
         );
 
         if ( $Self->{Subaction} eq 'Change' ) {
@@ -264,33 +223,12 @@ sub Run {
             $Param{TextModuleCategoryStrg} = $LayoutObject->BuildSelection(
                 Data       => \%CategoryData,
                 Name       => 'AssignedCategoryIDs',
-                Multiple   => 1,
-                Size       => ( $CategorySize < 3 ) ? 3 : $CategorySize,
+                Multiple   => 0,
+                Size       => ($CategorySize < 3) ? 3 : $CategorySize,
                 SelectedID => \@SelectedCategoryIDs,
                 Class      => 'Modernize',
+                TreeView   => 1
             );
-
-            # build queue selection
-            my $SelectedQueueDataRef = $TextModuleObject->TextModuleObjectLinkGet(
-                ObjectType   => 'Queue',
-                TextModuleID => $GetParam{ID},
-            );
-            my @SelectedQueueIDs = @{$SelectedQueueDataRef};
-
-            $Param{QueueTextModuleStrg} = $LayoutObject->BuildSelection(
-                Data       => \%QueueData,
-                Name       => 'AssignedQueueIDs',
-                Multiple   => 1,
-                Size       => ( $QueueSize < 3 ) ? 3 : $QueueSize,
-                SelectedID => \@SelectedQueueIDs,
-                Class      => 'Modernize',
-            );
-
-            my $QueueIndex = 0;
-            for my $QueueID (@SelectedQueueIDs) {
-                $Param{SelQueuesArray} .= 'arrSelQueues[' . $QueueIndex . '] = "' . $QueueID . '";';
-                $QueueIndex++;
-            }
 
             # build ticket type selection
             my @SelectedTicketTypeIDs;
@@ -354,6 +292,11 @@ sub Run {
             Data => \%Param,
         );
 
+        # set TimeUnits to 0 as default, if value is empty
+        if (!$TextModuleData{TimeUnits}) {
+            $TextModuleData{TimeUnits} = 0;
+        }
+
         $LayoutObject->Block(
             Name => 'Edit',
             Data => {
@@ -367,6 +310,18 @@ sub Run {
         if ( $ConfigObject->Get('Frontend::RichText') ) {
             $LayoutObject->Block(
                 Name => 'RichText',
+                Data => \%Param,
+            );
+        }
+
+        if ( $LayoutObject->{BrowserRichText} ) {
+
+            # use height/width defined for this screen
+            $Param{RichTextHeight} = 320;
+            $Param{RichTextWidth}  = 620;
+
+            # set up rich text editor
+            $LayoutObject->SetRichTextParameters(
                 Data => \%Param,
             );
         }
@@ -513,23 +468,8 @@ sub Run {
                 Multiple   => 1,
                 Size       => ( $CategorySize < 3 ) ? 3 : $CategorySize,
                 SelectedID => \@NewCategoryIDs,
-                Class      => 'Modernize',
+                Class      => 'Modernize Validate_Required',
             );
-
-            $Param{QueueTextModuleStrg} = $LayoutObject->BuildSelection(
-                Data       => \%QueueData,
-                Name       => 'AssignedQueueIDs',
-                Multiple   => 1,
-                Size       => ( $QueueSize < 3 ) ? 3 : $QueueSize,
-                SelectedID => \@NewQueueIDs,
-                Class      => 'Modernize',
-            );
-
-            my $QueueIndex = 0;
-            for my $QueueID (@NewQueueIDs) {
-                $Param{SelQueuesArray} .= 'arrSelQueues[' . $QueueIndex . '] = "' . $QueueID . '";';
-                $QueueIndex++;
-            }
 
             $Param{TicketTypeTextModuleStrg} = $LayoutObject->BuildSelection(
                 Data        => \%TicketTypeData,
@@ -678,11 +618,11 @@ sub Run {
                     }
                     elsif (
                         !$InQuote
-                        && $Char    ne ';'
-                        && $Char    ne '"'
-                        && $Char    ne "\n"
-                        && $Char    ne "\r"
-                        && $OldChar ne '"'
+                            && $Char    ne ';'
+                            && $Char    ne '"'
+                            && $Char    ne "\n"
+                            && $Char    ne "\r"
+                            && $OldChar ne '"'
                     ) {
                         $PreparedContent .= '"';
                         $InQuote    = 1;
@@ -690,8 +630,8 @@ sub Run {
                     }
                     elsif (
                         $InQuote
-                        && $AddedQuote
-                        && ( $Char eq "\n" || $Char eq "\r" || $Char eq ';' )
+                            && $AddedQuote
+                            && ( $Char eq "\n" || $Char eq "\r" || $Char eq ';' )
                     ) {
                         $PreparedContent .= '"';
                         $InQuote    = 0;
@@ -716,7 +656,7 @@ sub Run {
                         CSVSeparator => $ImportExportConfig->{CSVSeparator},
                         DoNotAdd     => $GetParam{XMLUploadDoNotAdd},
                         UserID       => $Self->{UserID},
-                        )
+                    )
                     };
 
                 if ( $UploadResult{XMLResultString} ) {
@@ -755,7 +695,7 @@ sub Run {
             Data => {
                 UploadType => $ImportExportConfig->{FileType},
                 %Param,
-                }
+            }
         );
 
         # output overview list
@@ -770,8 +710,8 @@ sub Run {
     # ------------------------------------------------------------ #
     elsif (
         defined $Self->{Subaction}
-        && $Self->{Subaction} eq 'DownloadResult'
-        && $GetParam{XMLResultFileID}
+            && $Self->{Subaction} eq 'DownloadResult'
+            && $GetParam{XMLResultFileID}
     ) {
         my @Data = $UploadCacheObject->FormIDGetAllFilesData(
             FormID => $GetParam{FormID},
@@ -866,7 +806,7 @@ sub Run {
         Data => {
             DownloadType => $ImportExportConfig->{FileType},
             %Param,
-            }
+        }
     );
 
     # output upload
@@ -877,7 +817,7 @@ sub Run {
             Data => {
                 UploadType => $ImportExportConfig->{FileType},
                 %Param,
-                }
+            }
         );
     }
     $Param{Count} = scalar keys %TextModuleData;
@@ -896,14 +836,14 @@ sub Run {
         my $Count = 0;
         for my $CurrHashID (
             sort { $TextModuleData{$a}->{Name} cmp $TextModuleData{$b}->{Name} }
-            keys %TextModuleData
+                keys %TextModuleData
         ) {
             $LayoutObject->Block(
                 Name => 'OverviewListRow',
                 Data => {
                     %{ $TextModuleData{$CurrHashID} },
                     Valid => $ValidHash{ $TextModuleData{$CurrHashID}->{ValidID} }
-                    }
+                }
             );
             $Count++;
             last if $Count == $DefaultLimit;
@@ -924,17 +864,3 @@ sub Run {
 }
 
 1;
-
-=back
-
-=head1 TERMS AND CONDITIONS
-
-This software is part of the KIX project
-(L<https://www.kixdesk.com/>).
-
-This software comes with ABSOLUTELY NO WARRANTY. For details, see the enclosed file
-LICENSE for license information (AGPL). If you did not receive this file, see
-
-<https://www.gnu.org/licenses/agpl.txt>.
-
-=cut
