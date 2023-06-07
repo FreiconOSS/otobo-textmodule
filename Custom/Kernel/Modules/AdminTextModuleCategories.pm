@@ -1,18 +1,10 @@
 # --
-# OTOBO is a web-based ticketing system for service organisations.
+# Copyright (C) 2006-2020 c.a.p.e. IT GmbH, https://www.cape-it.de
+# Copyright (C) 2023 FREICON GmbH & Co.KG, https://www.freicon.de
 # --
-# Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
-# Copyright (C) 2019-2022 Rother OSS GmbH, https://otobo.de/
-# Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
-# --
-# This program is free software: you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation, either version 3 of the License, or (at your option) any later version.
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+# This software comes with ABSOLUTELY NO WARRANTY. For details, see
+# the enclosed file LICENSE for license information (AGPL). If you
+# did not receive this file, see https://www.gnu.org/licenses/agpl.txt.
 # --
 
 package Kernel::Modules::AdminTextModuleCategories;
@@ -58,7 +50,7 @@ sub Run {
     # get params
     for (
         qw(SelectedCategoryID ID Name ParentCategory FormID Limit Show Download DownloadType UploadType
-        XMLUploadDoNotAdd XMLResultFileID XMLResultFileName GroupPermission RolePermission)
+            XMLUploadDoNotAdd XMLResultFileID XMLResultFileName GroupPermission RolePermission)
     ) {
         $GetParam{$_} = $ParamObject->GetParam( Param => $_ ) || '';
     }
@@ -341,17 +333,17 @@ sub Run {
                         !$InQuote && (
                             $Char eq ';' || $Char eq "\n"
                         )
-                        && $OldChar eq ';'
+                            && $OldChar eq ';'
                     ) {
                         $PreparedContent .= '""';
                     }
                     elsif (
                         !$InQuote
-                        && $Char    ne ';'
-                        && $Char    ne '"'
-                        && $Char    ne " \n "
-                        && $Char    ne " \r "
-                        && $OldChar ne '"'
+                            && $Char    ne ';'
+                            && $Char    ne '"'
+                            && $Char    ne " \n "
+                            && $Char    ne " \r "
+                            && $OldChar ne '"'
                     ) {
                         $PreparedContent .= '"';
                         $InQuote    = 1;
@@ -359,8 +351,8 @@ sub Run {
                     }
                     elsif (
                         $InQuote
-                        && $AddedQuote
-                        && ( $Char eq " \n " || $Char eq " \r " || $Char eq ';' )
+                            && $AddedQuote
+                            && ( $Char eq " \n " || $Char eq " \r " || $Char eq ';' )
                     ) {
                         $PreparedContent .= '"';
                         $InQuote    = 0;
@@ -387,7 +379,7 @@ sub Run {
                         CSVSeparator => $ImportExportConfig->{CSVSeparator},
                         DoNotAdd     => $GetParam{XMLUploadDoNotAdd},
                         UserID       => $Self->{UserID},
-                        )
+                    )
                     };
 
                 if ( $UploadResult{XMLResultString} ) {
@@ -427,7 +419,7 @@ sub Run {
             Data => {
                 UploadType => $ImportExportConfig->{FileType},
                 %Param,
-                }
+            }
         );
 
         # output overview list
@@ -521,7 +513,7 @@ sub Run {
         Data => {
             DownloadType => $ImportExportConfig->{FileType},
             %Param,
-            }
+        }
     );
 
     # output upload
@@ -532,7 +524,7 @@ sub Run {
             Data => {
                 UploadType => $ImportExportConfig->{FileType},
                 %Param,
-                }
+            }
         );
     }
 
@@ -544,6 +536,26 @@ sub Run {
         Name => 'OverviewList',
         Data => \%Param,
     );
+
+    if ( $Param{Count} ) {
+        my $Count = 0;
+        for my $CurrHashID (
+            sort { $TextModuleCategoryData{$a} cmp $TextModuleCategoryData{$b} }
+                keys %TextModuleCategoryData
+        ) {
+            $LayoutObject->Block(
+                Name => 'OverviewListRow',
+                Data => {
+                    Name => $TextModuleCategoryData{$CurrHashID},
+                    ID   => $CurrHashID
+                }
+            );
+            $Count++;
+        }
+    }
+    else {
+        $LayoutObject->Block( Name => 'OverviewListEmpty' );
+    }
 
     # build category tree
     $Param{CategoryTree} = $LayoutObject->TextModuleCategoryTree(
@@ -566,17 +578,3 @@ sub Run {
 }
 
 1;
-
-=back
-
-=head1 TERMS AND CONDITIONS
-
-This software is part of the KIX project
-(L<https://www.kixdesk.com/>).
-
-This software comes with ABSOLUTELY NO WARRANTY. For details, see the enclosed file
-LICENSE for license information (AGPL). If you did not receive this file, see
-
-<https://www.gnu.org/licenses/agpl.txt>.
-
-=cut
