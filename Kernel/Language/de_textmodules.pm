@@ -10,8 +10,8 @@ sub Data {
     $Self->{Translation}->{'Text Modules'} = 'Textbausteine',
         $Self->{Translation}->{'Text module'} = 'Textbaustein',
         $Self->{Translation}->{'Text Modules Management'} = 'Verwaltung der Textbausteine',
-        $Self->{Translation}->{'Text Module Category'} = 'Textbausteinkategorien',
-        $Self->{Translation}->{'Text Module Category Management'} = 'Verwaltung der Textbausteincategorien',
+        $Self->{Translation}->{'Text Module Category'} = 'Textbaustein Kategorien',
+        $Self->{Translation}->{'Text Module Category Management'} = 'Verwaltung der Textbaustein Kategorien',
         $Self->{Translation}->{'Add text module'} = 'Textbaustein hinzufügen',
 
         $Self->{Translation}->{'Filter Overview'} = 'Filter Übersicht',
