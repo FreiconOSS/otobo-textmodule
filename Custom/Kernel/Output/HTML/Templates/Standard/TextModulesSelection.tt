@@ -76,7 +76,7 @@
 
     // init textmodules
     if ($('#TextModulesTable').length)
-        Core.KIX4OTRS.TextModules.Init();
+        Core.Addon.TextModules.Init();
 //]]>
 </script>
 [% END %]

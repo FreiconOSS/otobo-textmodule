@@ -17,14 +17,14 @@
 
 
 var Core = Core || {};
-Core.KIX4OTRS = Core.KIX4OTRS || {};
+Core.Addon = Core.Addon || {};
 
 /**
  * @namespace
- * @exports TargetNS as Core.KIX4OTRS.TextModules
+ * @exports TargetNS as Core.Addon.TextModules
  * @description Provides functions for text module support
  */
-Core.KIX4OTRS.TextModules = (function (TargetNS) {
+Core.Addon.TextModules = (function (TargetNS) {
     var TextModules = new Array(),
         TM_history = new Array(''),
         SelectedTextModuleID = -1,
@@ -178,7 +178,7 @@ Core.KIX4OTRS.TextModules = (function (TargetNS) {
         $Subject.html(loader);
         $Body.html(loader);
 
-        PreviewPosition = Core.KIX4OTRS.GetWidgetPopupPosition($TMPreviewContainer.parent(), Event);
+        PreviewPosition = Core.Addon.GetWidgetPopupPosition($TMPreviewContainer.parent(), Event);
 
         // move PreviewContainer if close to bottom
         if (Math.round(screen.availHeight * 0.3) <= PreviewPosition.Top) {
@@ -269,9 +269,9 @@ Core.KIX4OTRS.TextModules = (function (TargetNS) {
             + QueueID + ';StateID=' + StateID + ';CustomerUserID=' + CustomerUserID + ';Frontend=' + Frontend;
         Core.AJAX.ContentUpdate($TMTree, URL, function () {
             if (Core.Config.Get('TextModulesDisplayType') == 'List') {
-                Core.KIX4OTRS.TextModules.InitList();
+                Core.Addon.TextModules.InitList();
             } else {
-                Core.KIX4OTRS.TextModules.InitTree();
+                Core.Addon.TextModules.InitTree();
             }
         });
 
@@ -458,7 +458,7 @@ Core.KIX4OTRS.TextModules = (function (TargetNS) {
             }
         }).on("mousemove", 'a', function (e) {
             if ($(this).children('span').hasClass('TextModule')) {
-                var PreviewPosition = Core.KIX4OTRS.GetWidgetPopupPosition($TMPreviewContainer.parent(), Event);
+                var PreviewPosition = Core.Addon.GetWidgetPopupPosition($TMPreviewContainer.parent(), Event);
             }
         });
 
@@ -552,7 +552,7 @@ Core.KIX4OTRS.TextModules = (function (TargetNS) {
     }
 
     return TargetNS;
-}(Core.KIX4OTRS.TextModules || {}));
+}(Core.Addon.TextModules || {}));
 
 (function () {
 
@@ -651,8 +651,8 @@ Core.KIX4OTRS.TextModules = (function (TargetNS) {
                                 themes: {
                                     name: 'InputField',
                                     variant: 'Tree',
-                                    icons: true,
-                                    dots: true,
+                                    icons: false,
+                                    dots: false,
                                 }
                             },
                             types: {
