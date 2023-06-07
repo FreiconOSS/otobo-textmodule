@@ -1,5 +1,6 @@
 # --
 # Copyright (C) 2006-2020 c.a.p.e. IT GmbH, https://www.cape-it.de
+# Copyright (C) 2023 FREICON GmbH & Co.KG, https://www.freicon.de
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file LICENSE for license information (AGPL). If you
@@ -417,7 +418,7 @@ sub TextModuleCategoryUpdate {
                     return if !$Self->{DBObject}->Do(
                         SQL =>
                             'UPDATE kix_text_module_category SET name = ?, change_time = current_timestamp, group_permission = ?, role_permission = ?,  '
-                            . ' change_by = ? WHERE id = ?',
+                                . ' change_by = ? WHERE id = ?',
                         Bind => [ \$NewCategoryName, \$Param{GroupPermission}, \$Param{RolePermission}, \$Param{UserID}, \$CategoryID ],
                     );
                 }
@@ -586,7 +587,7 @@ sub TextModuleCategoryList {
     if ( $Param{Name} ) {
         my $Name = $Param{Name};
         $Name =~ s/\*/%/g;
-        $WHEREClauseExt .= " AND name like \'$Name\'";
+        $WHEREClauseExt .= " AND name like \'%$Name\%'";
     }
 
     my $SQL = "SELECT id, name FROM kix_text_module_category WHERE 1=1";
@@ -971,13 +972,13 @@ sub _ImportTextModuleCategoriesXML {
 
     if (
         $XMLHash[1]
-        && ref( $XMLHash[1] ) eq 'HASH'
-        && $XMLHash[1]->{'TextModuleCategoryList'}
-        && ref( $XMLHash[1]->{'TextModuleCategoryList'} ) eq 'ARRAY'
-        && $XMLHash[1]->{'TextModuleCategoryList'}->[1]
-        && ref( $XMLHash[1]->{'TextModuleCategoryList'}->[1] ) eq 'HASH'
-        && $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'}
-        && ref( $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'} ) eq 'ARRAY'
+            && ref( $XMLHash[1] ) eq 'HASH'
+            && $XMLHash[1]->{'TextModuleCategoryList'}
+            && ref( $XMLHash[1]->{'TextModuleCategoryList'} ) eq 'ARRAY'
+            && $XMLHash[1]->{'TextModuleCategoryList'}->[1]
+            && ref( $XMLHash[1]->{'TextModuleCategoryList'}->[1] ) eq 'HASH'
+            && $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'}
+            && ref( $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'} ) eq 'ARRAY'
     ) {
         my $TMArrIndex = 0;
         for my $TMArrRef (
@@ -991,8 +992,8 @@ sub _ImportTextModuleCategoriesXML {
 
                 if (
                     ref( $TMArrRef->{$Key} ) eq 'ARRAY'
-                    && $TMArrRef->{$Key}->[1]
-                    && ref( $TMArrRef->{$Key}->[1] ) eq 'HASH'
+                        && $TMArrRef->{$Key}->[1]
+                        && ref( $TMArrRef->{$Key}->[1] ) eq 'HASH'
                 ) {
                     $UpdateData{$Key} = $TMArrRef->{$Key}->[1]->{Content} || '';
                 }
@@ -1164,9 +1165,9 @@ sub TextModuleObjectLinkGet {
     }
     my $CacheKey =
         'TextModuleObjectLink::'
-        . $Param{TextModuleID} . '::'
-        . $Param{ObjectType} . '::'
-        . $Param{ObjectID};
+            . $Param{TextModuleID} . '::'
+            . $Param{ObjectType} . '::'
+            . $Param{ObjectID};
     my $Cache = $Self->{CacheObject}->Get(
         Type => 'TextModule',
         Key  => $CacheKey
@@ -1935,7 +1936,7 @@ sub _CreateTextModuleExportXML {
 
         if (
             !$CurrTM{TextModuleCategoryList}->[1]->{TextModuleCategory}->[1]
-            || ref $CurrTM{TextModuleCategoryList}->[1]->{TextModuleCategory}->[1] ne 'HASH'
+                || ref $CurrTM{TextModuleCategoryList}->[1]->{TextModuleCategory}->[1] ne 'HASH'
         ) {
             %{ $CurrTM{TextModuleCategoryList}->[1]->{TextModuleCategory}->[1] } = ();
         }
@@ -1961,7 +1962,7 @@ sub _CreateTextModuleExportXML {
 
         if (
             !$CurrTM{QueueList}->[1]->{Queue}->[1]
-            || ref $CurrTM{QueueList}->[1]->{Queue}->[1] ne 'HASH'
+                || ref $CurrTM{QueueList}->[1]->{Queue}->[1] ne 'HASH'
         ) {
             %{ $CurrTM{QueueList}->[1]->{Queue}->[1] } = ();
         }
@@ -1987,7 +1988,7 @@ sub _CreateTextModuleExportXML {
 
         if (
             !$CurrTM{TicketTypeList}->[1]->{TicketType}->[1]
-            || ref $CurrTM{TicketTypeList}->[1]->{TicketType}->[1] ne 'HASH'
+                || ref $CurrTM{TicketTypeList}->[1]->{TicketType}->[1] ne 'HASH'
         ) {
             %{ $CurrTM{TicketTypeList}->[1]->{TicketType}->[1] } = ();
         }
@@ -2013,7 +2014,7 @@ sub _CreateTextModuleExportXML {
 
         if (
             !$CurrTM{TicketStateList}->[1]->{TicketState}->[1]
-            || ref $CurrTM{TicketStateList}->[1]->{TicketState}->[1] ne 'HASH'
+                || ref $CurrTM{TicketStateList}->[1]->{TicketState}->[1] ne 'HASH'
         ) {
             %{ $CurrTM{TicketStateList}->[1]->{TicketState}->[1] } = ();
         }
@@ -2157,7 +2158,7 @@ sub _ImportTextModuleCSV {
                     $ListHash{ $ObjectIdx++ } = {
                         ID   => $ObjectID,
                         Name => $ObjectName,
-                        }
+                    }
                 }
                 $UpdateData{$Key} = \%ListHash;
             }
@@ -2369,13 +2370,13 @@ sub _ImportTextModuleXML {
 
     if (
         $XMLHash[1]
-        && ref( $XMLHash[1] ) eq 'HASH'
-        && $XMLHash[1]->{'TextModuleList'}
-        && ref( $XMLHash[1]->{'TextModuleList'} ) eq 'ARRAY'
-        && $XMLHash[1]->{'TextModuleList'}->[1]
-        && ref( $XMLHash[1]->{'TextModuleList'}->[1] ) eq 'HASH'
-        && $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'}
-        && ref( $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'} ) eq 'ARRAY'
+            && ref( $XMLHash[1] ) eq 'HASH'
+            && $XMLHash[1]->{'TextModuleList'}
+            && ref( $XMLHash[1]->{'TextModuleList'} ) eq 'ARRAY'
+            && $XMLHash[1]->{'TextModuleList'}->[1]
+            && ref( $XMLHash[1]->{'TextModuleList'}->[1] ) eq 'HASH'
+            && $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'}
+            && ref( $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'} ) eq 'ARRAY'
     ) {
         my $TMArrIndex = 0;
         for my $TMArrRef ( @{ $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'} } ) {
@@ -2386,8 +2387,8 @@ sub _ImportTextModuleXML {
             for my $Key ( %{$TMArrRef} ) {
                 if (
                     ref( $TMArrRef->{$Key} ) eq 'ARRAY'
-                    && $TMArrRef->{$Key}->[1]
-                    && ref( $TMArrRef->{$Key}->[1] ) eq 'HASH'
+                        && $TMArrRef->{$Key}->[1]
+                        && ref( $TMArrRef->{$Key}->[1] ) eq 'HASH'
                 ) {
                     $UpdateData{$Key} = $TMArrRef->{$Key}->[1]->{Content} || '';
                 }
@@ -2398,10 +2399,10 @@ sub _ImportTextModuleXML {
 
                 if (
                     ref( $TMArrRef->{ $ObjectType . 'List' } ) eq 'ARRAY'
-                    && $TMArrRef->{ $ObjectType . 'List' }->[1]
-                    && ref( $TMArrRef->{ $ObjectType . 'List' }->[1] ) eq 'HASH'
-                    && $TMArrRef->{ $ObjectType . 'List' }->[1]->{$ObjectType}
-                    && ref( $TMArrRef->{ $ObjectType . 'List' }->[1]->{$ObjectType} ) eq 'ARRAY'
+                        && $TMArrRef->{ $ObjectType . 'List' }->[1]
+                        && ref( $TMArrRef->{ $ObjectType . 'List' }->[1] ) eq 'HASH'
+                        && $TMArrRef->{ $ObjectType . 'List' }->[1]->{$ObjectType}
+                        && ref( $TMArrRef->{ $ObjectType . 'List' }->[1]->{$ObjectType} ) eq 'ARRAY'
                 ) {
                     my $Index = 1;
                     for my $SubContent (
@@ -2659,17 +2660,3 @@ sub _ImportObjectLinks {
 }
 
 1;
-
-=back
-
-=head1 TERMS AND CONDITIONS
-
-This software is part of the KIX project
-(L<https://www.kixdesk.com/>).
-
-This software comes with ABSOLUTELY NO WARRANTY. For details, see the enclosed file
-LICENSE for license information (AGPL). If you did not receive this file, see
-
-<https://www.gnu.org/licenses/agpl.txt>.
-
-=cut

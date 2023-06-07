@@ -1,22 +1,30 @@
 // --
-// Copyright (C) 2006-2020 c.a.p.e. IT GmbH, https://www.cape-it.de
+// OTOBO is a web-based ticketing system for service organisations.
 // --
-// This software comes with ABSOLUTELY NO WARRANTY. For details, see
-// the enclosed file LICENSE for license information (AGPL). If you
-// did not receive this file, see https://www.gnu.org/licenses/agpl.txt.
+// Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
+// Copyright (C) 2019-2022 Rother OSS GmbH, https://otobo.de/
+// Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
+// --
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 // --
 
-"use strict";
 
 var Core = Core || {};
-Core.KIX4OTRS = Core.KIX4OTRS || {};
+Core.Addon = Core.Addon || {};
 
 /**
  * @namespace
- * @exports TargetNS as Core.KIX4OTRS.TextModules
+ * @exports TargetNS as Core.Addon.TextModules
  * @description Provides functions for text module support
  */
-Core.KIX4OTRS.TextModules = (function (TargetNS) {
+Core.Addon.TextModules = (function (TargetNS) {
     var TextModules = new Array(),
         TM_history = new Array(''),
         SelectedTextModuleID = -1,
@@ -170,7 +178,7 @@ Core.KIX4OTRS.TextModules = (function (TargetNS) {
         $Subject.html(loader);
         $Body.html(loader);
 
-        PreviewPosition = Core.KIX4OTRS.GetWidgetPopupPosition($TMPreviewContainer.parent(), Event);
+        PreviewPosition = Core.Addon.GetWidgetPopupPosition($TMPreviewContainer.parent(), Event);
 
         // move PreviewContainer if close to bottom
         if (Math.round(screen.availHeight * 0.3) <= PreviewPosition.Top) {
@@ -261,9 +269,9 @@ Core.KIX4OTRS.TextModules = (function (TargetNS) {
             + QueueID + ';StateID=' + StateID + ';CustomerUserID=' + CustomerUserID + ';Frontend=' + Frontend;
         Core.AJAX.ContentUpdate($TMTree, URL, function () {
             if (Core.Config.Get('TextModulesDisplayType') == 'List') {
-                Core.KIX4OTRS.TextModules.InitList();
+                Core.Addon.TextModules.InitList();
             } else {
-                Core.KIX4OTRS.TextModules.InitTree();
+                Core.Addon.TextModules.InitTree();
             }
         });
 
@@ -450,7 +458,7 @@ Core.KIX4OTRS.TextModules = (function (TargetNS) {
             }
         }).on("mousemove", 'a', function (e) {
             if ($(this).children('span').hasClass('TextModule')) {
-                var PreviewPosition = Core.KIX4OTRS.GetWidgetPopupPosition($TMPreviewContainer.parent(), Event);
+                var PreviewPosition = Core.Addon.GetWidgetPopupPosition($TMPreviewContainer.parent(), Event);
             }
         });
 
@@ -544,7 +552,7 @@ Core.KIX4OTRS.TextModules = (function (TargetNS) {
     }
 
     return TargetNS;
-}(Core.KIX4OTRS.TextModules || {}));
+}(Core.Addon.TextModules || {}));
 
 (function () {
 
@@ -643,8 +651,8 @@ Core.KIX4OTRS.TextModules = (function (TargetNS) {
                                 themes: {
                                     name: 'InputField',
                                     variant: 'Tree',
-                                    icons: true,
-                                    dots: true,
+                                    icons: false,
+                                    dots: false,
                                 }
                             },
                             types: {
