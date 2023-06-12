@@ -26,6 +26,18 @@ jobs:
           echo "VERSION=$(git describe --tag --abbrev=7 | sed s/-/./g)" >> $GITHUB_ENV
           echo "NAME=TextModule" >> $GITHUB_ENV
 
+      - name: Make pdf
+        uses: docker://pandoc/latex
+        with:
+          args: --pdf-engine=xelatex -o doc.pdf README.md
+
+      - name: Provide doc for OPM
+        run: |
+          mkdir -p doc/de
+          cp -a doc.pdf doc/de/${{ env.NAME }}.pdf
+        shell: bash
+
+
       - name: Build OPM package
         uses: freiconoss/action-opm-build@v1
         with:
@@ -56,3 +68,15 @@ jobs:
           asset_path: ${{ env.NAME }}-${{ env.VERSION }}.opm
           asset_name: ${{ env.NAME }}-${{ env.VERSION }}.opm
           asset_content_type: application/octet-stream
+
+      - name: Upload docs
+        if: always() &&  github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: doc.pdf
+          asset_name: ${{ env.NAME }}.pdf
+          asset_content_type: application/octet-stream
+
