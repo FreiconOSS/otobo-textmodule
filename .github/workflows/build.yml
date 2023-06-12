@@ -39,7 +39,7 @@ jobs:
 
 
       - name: Build OPM package
-        uses: freiconoss/action-opm-build@v1
+        uses: freiconoss/action-opm-build@v1.1
         with:
           name: ${{ env.NAME }}
           version: ${{ env.VERSION }}
