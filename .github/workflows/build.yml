@@ -26,17 +26,23 @@ jobs:
           echo "VERSION=$(git describe --tag --abbrev=7 | sed s/-/./g)" >> $GITHUB_ENV
           echo "NAME=TextModule" >> $GITHUB_ENV
 
-      - name: Make pdf
+      - name: Generate english pdf doc
         uses: docker://pandoc/latex
         with:
           args: --pdf-engine=xelatex -o doc.pdf README.md
 
+      - name: Generate german pdf doc
+        uses: docker://pandoc/latex
+        with:
+          args: --pdf-engine=xelatex -o doc_de.pdf README_DE.md
+
       - name: Provide doc for OPM
         run: |
           mkdir -p doc/de
-          cp -a doc.pdf doc/de/${{ env.NAME }}.pdf
+          mkdir -p doc/en
+          cp -a doc.pdf doc/en/${{ env.NAME }}.pdf
+          cp -a doc_de.pdf doc/de/${{ env.NAME }}.pdf
         shell: bash
-
 
       - name: Build OPM package
         uses: freiconoss/action-opm-build@v1.1
@@ -69,7 +75,7 @@ jobs:
           asset_name: ${{ env.NAME }}-${{ env.VERSION }}.opm
           asset_content_type: application/octet-stream
 
-      - name: Upload docs
+      - name: Upload english docs
         if: always() &&  github.event_name == 'release'
         uses: actions/upload-release-asset@v1
         env:
@@ -77,6 +83,17 @@ jobs:
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
           asset_path: doc.pdf
-          asset_name: ${{ env.NAME }}.pdf
+          asset_name: ${{ env.NAME }}_EN.pdf
+          asset_content_type: application/octet-stream
+ 
+      - name: Upload german docs
+        if: always() &&  github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: doc_de.pdf
+          asset_name: ${{ env.NAME }}_DE.pdf
           asset_content_type: application/octet-stream
 
