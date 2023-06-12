@@ -5,7 +5,7 @@ on:
     types: [ published ]
 
   push:
-    branches: [ main, add-pdf ]
+    branches: [ main ]
 
   # allows for manual workflow execution
   workflow_dispatch:
