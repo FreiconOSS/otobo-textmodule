@@ -98,7 +98,7 @@ sub Run {
     $Param{TextModuleCategoryStrg} = $LayoutObject->BuildSelection(
         Data     => \%CategoryData,
         Name     => 'AssignedCategoryIDs',
-        Multiple => 1,
+        Multiple => 0,
         Size     => ( $CategorySize < 3 ) ? 3 : $CategorySize,
         Class    => 'Modernize',
         TreeView => 1,
