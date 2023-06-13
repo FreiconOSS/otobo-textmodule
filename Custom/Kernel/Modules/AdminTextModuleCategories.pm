@@ -138,9 +138,11 @@ sub Run {
                 ID => $GetParam{ID}
             );
             $GetParam{RolePermission} = $TextModuleCategoryData{RolePermission};
-            my @NameSplit = split( /::/, $TextModuleCategoryData{Name} );
-            $TextModuleCategoryData{Name} = pop @NameSplit;
-            $GetParam{ParentCategory} = join( ' :: ', @NameSplit );
+
+            if ($TextModuleCategoryData{Name} =~ /::/) {
+                ($GetParam{ParentCategory}, $TextModuleCategoryData{Name}) = ($TextModuleCategoryData{Name} =~ /^(.*)::([^:]+)$/);
+            }
+
             $GetParam{GroupPermission} = $TextModuleCategoryData{GroupPermission};
         }
 
@@ -164,6 +166,7 @@ sub Run {
             SelectedID   => $GetParam{ParentCategory},
             PossibleNone => 1,
             Class        => 'Modernize',
+            TreeView     => 1
         );
 
         $Param{GroupPermissionStrg} = $LayoutObject->BuildSelection(
