@@ -13,6 +13,7 @@ sub Data {
         $Self->{Translation}->{'Text Module Category'} = 'Textbaustein Kategorien',
         $Self->{Translation}->{'Text Module Category Management'} = 'Verwaltung der Textbaustein Kategorien',
         $Self->{Translation}->{'Add text module'} = 'Textbaustein hinzufügen',
+        $Self->{Translation}->{'Add category'} = 'Kategorie hinzufügen',
 
         $Self->{Translation}->{'Filter Overview'} = 'Filter Übersicht',
         $Self->{Translation}->{'Category Selection'} = 'Auswahl Kategorie',
