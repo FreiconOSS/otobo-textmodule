@@ -21,7 +21,8 @@
             <div class="Content">
                 <ul class="ActionList">
                     <li>
-                        <a href="[% Env("Baselink") %]Action=[% Env("Action") %]" class="CallForAction Fullsize Center Back">
+                        <a href="[% Env("Baselink") %]Action=[% Env("Action") %]"
+                           class="CallForAction Fullsize Center Back">
 
                             <span>
                                 <i class="fa fa-caret-left"></i>
@@ -49,10 +50,12 @@
                         </li>
                         <li>
                             <h4>[% Translate("Limit Results") | html %]</h4>
-                            <input type="text" id="SearchLimit" name="Limit" class="FilterBox" value="[% Data.Limit %]"/>
+                            <input type="text" id="SearchLimit" name="Limit" class="FilterBox"
+                                   value="[% Data.Limit %]"/>
                         </li>
                         <li>
-                            <button type="submit" name="Show" value="[% Translate("View") | html %]" class="CallForAction Fullsize">
+                            <button type="submit" name="Show" value="[% Translate("View") | html %]"
+                                    class="CallForAction Fullsize">
                                 <span><i class="fa fa-search"></i> [% Translate("View") | html %]</span>
                             </button>
                         </li>
@@ -70,9 +73,28 @@
             <div class="Content">
                 <form name="form" action="[% Env("CGIHandle") %]" method="get">
                     <input type="hidden" name="Action" value="[% Env("Action") %]"/>
-                    <input type="hidden" name="Subaction" value="New" />
-                    <button type="submit" name="New" value="[% Translate("Click here to add a text module category") | html %]" class="CallForAction Fullsize Center">
+                    <input type="hidden" name="Subaction" value="New"/>
+                    <button type="submit" name="New"
+                            value="[% Translate("Click here to add a text module category") | html %]"
+                            class="CallForAction Fullsize Center">
                         <span><i class="fa fa-plus-square"></i> [% Translate("Add category") | html %]</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="WidgetSimple">
+            <div class="Header">
+                <h2><span>[% Translate("Add text module") | html %]</span></h2>
+            </div>
+            <div class="Content">
+                <form name="form" action="[% Env("CGIHandle") %]" method="get">
+                    <input type="hidden" name="Action" value="AdminTextModules"/>
+                    <input type="hidden" name="Subaction" value="New"/>
+                    <button type="submit" name="New"
+                            value="[% Translate("Click here to add a text module") | html %]"
+                            class="CallForAction Fullsize Center">
+                        <span><i class="fa fa-plus-square"></i> [% Translate("Add text module") | html %]</span>
                     </button>
                 </form>
             </div>
@@ -100,8 +122,9 @@
                     [% RenderBlockStart("OverviewListRow") %]
                     <tr>
                         <td>
-                            <a class="AsBlock" href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Change;ID=[% Data.ID | uri %]">[% Data.Name | html %]</a>
-                            <input type="hidden" class="SortData" value="[% Data.Name | html %]" />
+                            <a class="AsBlock"
+                               href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Change;ID=[% Data.ID | uri %]">[% Data.Name | html %]</a>
+                            <input type="hidden" class="SortData" value="[% Data.Name | html %]"/>
                         </td>
                         <td>
                             <a href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Delete;ID=[% Data.ID | html %]">[% Translate("delete") | html %]</a>
@@ -130,16 +153,18 @@
                 <h2><span>[% Translate("Text module category") | html %]</span></h2>
             </div>
             <div class="Content">
-                <form name="form1" action="[% Env("CGIHandle") %]" method="post" class="PreventMultipleSubmits Validate">
+                <form name="form1" action="[% Env("CGIHandle") %]" method="post"
+                      class="PreventMultipleSubmits Validate">
                     <input type="hidden" name="Action" value="[% Env("Action") %]"/>
-                    <input type="hidden" name="Subaction" value="Save" />
+                    <input type="hidden" name="Subaction" value="Save"/>
                     <input type="hidden" name="ID" value="[% Data.ID | html %]"/>
                     <fieldset class="TableLike">
                         <label class="Mandatory" for="Name">
                             <span class="Marker">*</span> [% Translate("Name") | html %]:
                         </label>
                         <p class="Value">
-                            <input type="text" id="Name" name="Name" value="[% Data.Name | html %]" size="35" class="Validate_Required [% Data.NameInvalid | html %]" maxlength="80"/>
+                            <input type="text" id="Name" name="Name" value="[% Data.Name | html %]" size="35"
+                                   class="Validate_Required [% Data.NameInvalid | html %]" maxlength="80"/>
                         <div id="NameError" class="TooltipErrorMessage">
                             <p>[% Translate("This field is required and its content can not be longer than %s characters.", "80") | html %]</p>
                         </div>
@@ -164,7 +189,8 @@
 
                         <div class="Clear"></div>
                         <div class="Field SpacingTop">
-                            <button class="Primary CallForAction" type="submit" value="[% Translate("Submit") | html %]"/>
+                            <button class="Primary CallForAction" type="submit"
+                                    value="[% Translate("Submit") | html %]"/>
                             <span>[% Translate("Submit") | html %]</span>
                             </button>
                         </div>
