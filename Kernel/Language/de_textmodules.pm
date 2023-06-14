@@ -19,7 +19,10 @@ sub Data {
         $Self->{Translation}->{'Category Selection'} = 'Auswahl Kategorie',
         $Self->{Translation}->{'Category Assignment'} = 'Zuweisung Kategorie',
         $Self->{Translation}->{'Queue Assignment'} = 'Zuweisung Queue',
-
+        $Self->{Translation}->{'Sub-service of'} = 'Unterservice von',
+        $Self->{Translation}->{'Text module category'} = 'Textbaustein Kategorie',
+        $Self->{Translation}->{'Collapse All'} = 'Alles Einklappen',
+        $Self->{Translation}->{'Expand All'} = 'Alles Ausklappen',
 
         return;
 }

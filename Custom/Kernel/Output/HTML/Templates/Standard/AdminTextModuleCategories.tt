@@ -49,8 +49,8 @@
                             <input type="text" id="SearchName" name="Name" class="FilterBox" value="[% Data.Name %]"/>
                         </li>
                         <li>
-                            <h4>[% Translate("Limit Results") | html %]</h4>
-                            <input type="text" id="SearchLimit" name="Limit" class="FilterBox"
+                            <h4>[% Translate("Limit") | html %]</h4>
+                            <input type="number" id="SearchLimit" name="Limit" class="FilterBox"
                                    value="[% Data.Limit %]"/>
                         </li>
                         <li>
@@ -127,10 +127,10 @@
                             <input type="hidden" class="SortData" value="[% Data.Name | html %]"/>
                         </td>
                         <td>
-                            <a href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Delete;ID=[% Data.ID | html %]">[% Translate("delete") | html %]</a>
+                            <a href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Delete;ID=[% Data.ID | html %]"><i class="fa fa-trash-o"></i></a>
                         </td>
                         <td>
-                            <a href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Change;ID=[% Data.ID | html %]">[% Translate("edit") | html %]</a>
+                            <a href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Change;ID=[% Data.ID | html %]"><i class="fa fa-pencil-square-o"></i> </a>
                         </td>
                     </tr>
                     [% RenderBlockEnd("OverviewListRow") %]
@@ -172,17 +172,17 @@
                             <p>[% Translate("This field is required and its content can not be longer than %s characters.", "80") | html %]</p>
                         </div>
                         </p>
-                        <label class="" for="ParentCategory">[% Translate("Parent Category") | html %]:</label>
+                        <label class="" for="ParentCategory">[% Translate("Sub-service of") | html %]:</label>
                         <p class="Value">
                         [% Data.ParentCategoryStrg %]
                         </p>
 
-                        <label class="" for="GroupPermission">[% Translate("Needed Groups") | html %]:</label>
+                        <label class="" for="GroupPermission">[% Translate("Group") | html %]:</label>
                         <p class="Value">
                         [% Data.GroupPermissionStrg %]
                         </p>
 
-                        <label class="" for="RolePermission">[% Translate("Needed Role") | html %]:</label>
+                        <label class="" for="RolePermission">[% Translate("Role") | html %]:</label>
                         <p class="Value">
                         [% Data.RolePermissionStrg %]
                         </p>
