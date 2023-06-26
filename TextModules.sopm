@@ -4,7 +4,7 @@
     <Framework>10.0.x</Framework>
     <Framework>10.1.x</Framework>
     <DatabaseInstall>
-        <TableCreate Name="kix_text_module">
+        <TableCreate Name="text_module">
             <Column Name="id" Required="true" Type="INTEGER" PrimaryKey="true" AutoIncrement="true"/>
             <Column Name="name" Required="true" Type="VARCHAR" Size="80"/>
             <Column Name="text" Required="false" Type="VARCHAR" Size="65535"/>
@@ -23,23 +23,23 @@
             <Column Name="create_by" Required="true" Type="INTEGER"/>
             <Column Name="change_time" Required="true" Type="DATE"/>
             <Column Name="change_by" Required="true" Type="INTEGER"/>
-            <Index Name="kix_text_module_name">
+            <Index Name="text_module_name">
                 <IndexColumn Name="name"/>
             </Index>
-            <Index Name="kix_text_module_keywords">
+            <Index Name="text_module_keywords">
                 <IndexColumn Name="keywords"/>
             </Index>
-            <Index Name="kix_text_module_language">
+            <Index Name="text_module_language">
                 <IndexColumn Name="language"/>
             </Index>
-            <Index Name="kix_text_module_comment1">
+            <Index Name="text_module_comment1">
                 <IndexColumn Name="comment1"/>
             </Index>
-            <Index Name="kix_text_module_comment2">
+            <Index Name="text_module_comment2">
                 <IndexColumn Name="comment2"/>
             </Index>
         </TableCreate>
-        <TableCreate Name="kix_text_module_object_link">
+        <TableCreate Name="text_module_object_link">
             <Column Name="text_module_id" Required="true" Type="INTEGER"/>
             <Column Name="object_type" Required="true" Type="VARCHAR" Size="50"/>
             <Column Name="object_id" Required="true" Type="INTEGER"/>
@@ -47,17 +47,17 @@
             <Column Name="create_by" Required="true" Type="INTEGER"/>
             <Column Name="change_time" Required="true" Type="DATE"/>
             <Column Name="change_by" Required="true" Type="INTEGER"/>
-            <ForeignKey ForeignTable="kix_text_module">
+            <ForeignKey ForeignTable="text_module">
                 <Reference Local="text_module_id" Foreign="id"/>
             </ForeignKey>
-            <Index Name="kix_text_module_object_link_object_type">
+            <Index Name="text_module_object_link_object_type">
                 <IndexColumn Name="object_type"/>
             </Index>
-            <Index Name="kix_text_module_object_link_object_id">
+            <Index Name="text_module_object_link_object_id">
                 <IndexColumn Name="object_id"/>
             </Index>
         </TableCreate>
-        <TableCreate Name="kix_text_module_object_link">
+        <TableCreate Name="text_module_object_link">
             <Column Name="id" Required="true" Type="INTEGER" PrimaryKey="true" AutoIncrement="true"/>
             <Column Name="name" Required="true" Type="VARCHAR" Size="2000"/>
             <Column Name="create_time" Required="true" Type="DATE"/>
@@ -65,7 +65,7 @@
             <Column Name="change_time" Required="true" Type="DATE"/>
             <Column Name="change_by" Required="true" Type="INTEGER"/>
         </TableCreate>
-        <TableCreate Name="kix_text_module_category">
+        <TableCreate Name="text_module_category">
             <Column Name="id" Required="true" Type="INTEGER" PrimaryKey="true" AutoIncrement="true"/>
             <Column Name="name" Required="true" Type="VARCHAR" Size="2000"/>
             <Column Name="group_permission" Required="false" Type="VARCHAR" Size="2000"/>
@@ -77,7 +77,7 @@
         </TableCreate>
     </DatabaseInstall>
     <DatabaseUpgrade Type="post">
-        <TableAlter Name="kix_text_module" Version="10.0.0">
+        <TableAlter Name="text_module" Version="10.0.0">
             <ColumnAdd Name="is_visible_for_customer" Required="false" Type="INTEGER" Default="0"/>
             <ColumnAdd Name="time_units" Required="false" Type="VARCHAR" Size="2000"/>
             <ColumnAdd Name="role_permission" Required="false" Type="VARCHAR" Size="2000"/>

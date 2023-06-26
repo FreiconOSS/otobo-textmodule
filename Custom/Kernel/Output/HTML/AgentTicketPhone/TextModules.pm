@@ -6,7 +6,7 @@
 # the enclosed file LICENSE for license information (AGPL). If you
 # did not receive this file, see https://www.gnu.org/licenses/agpl.txt.
 # --
-package Kernel::Output::HTML::KIXSidebar::TextModules;
+package Kernel::Output::HTML::Sidebar::TextModules;
 
 use strict;
 use warnings;
@@ -80,7 +80,7 @@ sub Run {
         # output results
         if ( $Param{Frontend} eq 'Agent' ) {
             $Content = $LayoutObject->Output(
-                TemplateFile => 'AgentKIXSidebarTextModules',
+                TemplateFile => 'AgentSidebarTextModules',
                 Data         => {
                     %{ $Self->{Config} },
                     TextModulesTable => $TextModulesTable,
@@ -90,7 +90,7 @@ sub Run {
         }
         elsif ( $Param{Frontend} eq 'Customer' || $Param{Frontend} eq 'Public' ) {
             $Content = $LayoutObject->Output(
-                TemplateFile => 'CustomerKIXSidebarTextModules',
+                TemplateFile => 'CustomerSidebarTextModules',
                 Data         => {
                     %{ $Self->{Config} },
                     TextModulesTable => $TextModulesTable,
