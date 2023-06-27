@@ -36,7 +36,6 @@ of a message. The body is always mandatory.
 Additional settings are: 
 
 - Is Visible for customer
-- Time Units
 - Category Assignment
 - Validity of the text module
 

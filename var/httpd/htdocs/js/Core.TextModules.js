@@ -582,10 +582,6 @@ Core.Addon.TextModules = (function (TargetNS) {
                 subject.value = subject.value + ' ' + resp.Subject;
                 CKEDITOR.instances.RichText.insertHtml(resp.TextModule);
 
-                if (resp.TimeUnits !== null) {
-                    $('input#TimeUnits').val(resp.TimeUnits);
-                }
-
                 if (resp.IsVisibleForCustomer !== null && resp.IsVisibleForCustomer !== 0 && resp.IsVisibleForCustomer !== '0') {
                     $('input#IsVisibleForCustomer').prop("checked", resp.IsVisibleForCustomer === '1' || resp.IsVisibleForCustomer === 1);
                 }

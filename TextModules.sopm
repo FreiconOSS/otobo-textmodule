@@ -17,7 +17,6 @@
             <Column Name="f_customer" Required="false" Type="INTEGER" Default="0"/>
             <Column Name="f_public" Required="false" Type="INTEGER" Default="0"/>
             <Column Name="is_visible_for_customer" Required="false" Type="INTEGER" Default="0"/>
-            <Column Name="time_units" Required="false" Type="VARCHAR" Size="2000"/>
             <Column Name="valid_id" Required="true" Type="INTEGER"/>
             <Column Name="create_time" Required="true" Type="DATE"/>
             <Column Name="create_by" Required="true" Type="INTEGER"/>
@@ -79,7 +78,6 @@
     <DatabaseUpgrade Type="post">
         <TableAlter Name="text_module" Version="10.0.0">
             <ColumnAdd Name="is_visible_for_customer" Required="false" Type="INTEGER" Default="0"/>
-            <ColumnAdd Name="time_units" Required="false" Type="VARCHAR" Size="2000"/>
             <ColumnAdd Name="role_permission" Required="false" Type="VARCHAR" Size="2000"/>
         </TableAlter>
     </DatabaseUpgrade>

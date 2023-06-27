@@ -58,7 +58,7 @@ sub Run {
         qw(ID Name Keywords Comment Comment1 Comment2 Subject TextModule
             Language LanguageEdit ValidID FormID Limit Show Download
             XMLUploadDoNotAdd XMLResultFileID XMLResultFileName
-            SelectedCategoryID DownloadType UploadType IsVisibleForCustomer TimeUnits)
+            SelectedCategoryID DownloadType UploadType IsVisibleForCustomer)
     ) {
         $GetParam{$_} = $ParamObject->GetParam( Param => $_ ) || '';
     }
@@ -291,11 +291,6 @@ sub Run {
             Name => 'Hint',
             Data => \%Param,
         );
-
-        # set TimeUnits to 0 as default, if value is empty
-        if (!$TextModuleData{TimeUnits}) {
-            $TextModuleData{TimeUnits} = 0;
-        }
 
         $LayoutObject->Block(
             Name => 'Edit',

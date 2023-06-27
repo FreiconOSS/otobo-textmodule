@@ -231,18 +231,6 @@
                         </p>
 
                         <div class="Clear"></div>
-                        <label class="" for="TimeUnits">[% Translate("Time units") | html %]:</label>
-                        <p class="Value">
-                            <input type="text" id="TimeUnits" name="TimeUnits" value="[% Data.TimeUnits | html %]" size="60" class="Validate_TimeUnits [% Data.TimeUnitsInvalid | html %]" maxlength="250"/>
-                        <div id="TimeUnitsError" class="TooltipErrorMessage">
-                            <p>[% Translate("Invalid time!") | html %]</p>
-                        </div>
-                        <div id="TimeUnitsServerError" class="TooltipErrorMessage">
-                            <p>[% Translate("Invalid time!") | html %]</p>
-                        </div>
-                        </p>
-
-                        <div class="Clear"></div>
                         <label  style="display: none" class="" for="LanguageEdit">[% Translate("Language") | html %]:</label>
                         <p  style="display: none" class="Value">
                         [% Data.LanguageEditOption %]

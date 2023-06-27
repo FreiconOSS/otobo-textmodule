@@ -149,7 +149,7 @@ sub TextModuleAdd {
     my $SQL = "INSERT INTO kix_text_module "
         . "(name, valid_id, keywords, comment1, comment2, text, subject, language, "
         . "f_agent, f_customer, f_public, "
-        . "create_time, create_by, change_time, change_by, is_visible_for_customer, time_units ) "
+        . "create_time, create_by, change_time, change_by, is_visible_for_customer) "
         . "VALUES "
         . "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,"
         . " current_timestamp, ?, current_timestamp, ?, ?, ?) ";
@@ -162,7 +162,7 @@ sub TextModuleAdd {
             \$Param{Comment2}, \$Param{TextModule}, \$Param{Subject},
             \$Param{Language},
             \$Param{Agent}, \$Param{Customer}, \$Param{Public},
-            \$Param{UserID}, \$Param{UserID}, \$Param{IsVisibleForCustomer}, \$Param{TimeUnits}
+            \$Param{UserID}, \$Param{UserID}, \$Param{IsVisibleForCustomer}
         ],
     );
 
@@ -227,7 +227,7 @@ sub TextModuleGet {
     # sql
     my $SQL
         = 'SELECT name, valid_id, keywords, comment1, comment2, text, '
-        . 'language, f_agent, f_customer, f_public, subject, is_visible_for_customer, time_units '
+        . 'language, f_agent, f_customer, f_public, subject, is_visible_for_customer '
         . 'FROM kix_text_module '
         . 'WHERE id = ' . $Param{ID};
 
@@ -249,7 +249,6 @@ sub TextModuleGet {
             Subject    => $Data[10],
 
             IsVisibleForCustomer => $Data[11],
-            TimeUnits            => $Data[12],
         );
 
         # set cache
