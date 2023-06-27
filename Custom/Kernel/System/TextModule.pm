@@ -146,7 +146,7 @@ sub TextModuleAdd {
     }
 
     # build sql...
-    my $SQL = "INSERT INTO text_module "
+    my $SQL = "INSERT INTO kix_text_module "
         . "(name, valid_id, keywords, comment1, comment2, text, subject, language, "
         . "f_agent, f_customer, f_public, "
         . "create_time, create_by, change_time, change_by, is_visible_for_customer, time_units ) "
@@ -173,7 +173,7 @@ sub TextModuleAdd {
         $Self->{CacheObject}->CleanUp(Type => 'TextModule');
 
         return 0 if !$Self->{DBObject}->Prepare(
-            SQL => 'SELECT max(id) FROM text_module '
+            SQL => 'SELECT max(id) FROM kix_text_module '
                 . " WHERE name = ? AND language = ? AND create_by = ? ",
             Bind => [ \$Param{Name}, \$Param{Language}, \$Param{UserID} ],
         );
@@ -228,7 +228,7 @@ sub TextModuleGet {
     my $SQL
         = 'SELECT name, valid_id, keywords, comment1, comment2, text, '
         . 'language, f_agent, f_customer, f_public, subject, is_visible_for_customer, time_units '
-        . 'FROM text_module '
+        . 'FROM kix_text_module '
         . 'WHERE id = ' . $Param{ID};
 
     return if !$Self->{DBObject}->Prepare( SQL => $SQL );
@@ -293,7 +293,7 @@ sub TextModuleDelete {
     );
 
     return $Self->{DBObject}->Do(
-        SQL  => 'DELETE FROM text_module WHERE id = ?',
+        SQL  => 'DELETE FROM kix_text_module WHERE id = ?',
         Bind => [ \$Param{ID} ],
     );
 }
@@ -324,7 +324,7 @@ sub TextModuleCategoryAdd {
     }
 
     # build sql...
-    my $SQL = "INSERT INTO text_module_category "
+    my $SQL = "INSERT INTO kix_text_module_category "
         . "(name, create_time, create_by, change_time, change_by, group_permission, role_permission ) "
         . "VALUES "
         . "(?, current_timestamp, ?, current_timestamp, ?, ?, ?) ";
@@ -340,7 +340,7 @@ sub TextModuleCategoryAdd {
     #handle the insert result...
     if ($DBInsert) {
         return 0 if !$Self->{DBObject}->Prepare(
-            SQL => 'SELECT max(id) FROM text_module_category '
+            SQL => 'SELECT max(id) FROM kix_text_module_category '
                 . " WHERE name = ? ",
             Bind => [ \$Param{Name} ],
         );
@@ -386,12 +386,12 @@ sub TextModuleCategoryUpdate {
     );
 
     # check if queue with same name already exists
-    my $SQL = "SELECT count(*) FROM text_module_category WHERE name = ? AND id <> ?";
+    my $SQL = "SELECT count(*) FROM kix_text_module_category WHERE name = ? AND id <> ?";
 
     my $Count = 0;
 
     # build sql...
-    $SQL = "UPDATE text_module_category SET "
+    $SQL = "UPDATE kix_text_module_category SET "
         . " name = ?, change_time = current_timestamp, change_by = ?, group_permission = ?, role_permission = ? "
         . "WHERE id = ?";
 
@@ -417,7 +417,7 @@ sub TextModuleCategoryUpdate {
                     $NewCategoryName =~ s/\Q$OldCategory{Name}\E/$Param{Name}/;
                     return if !$Self->{DBObject}->Do(
                         SQL =>
-                            'UPDATE text_module_category SET name = ?, change_time = current_timestamp, group_permission = ?, role_permission = ?,  '
+                            'UPDATE kix_text_module_category SET name = ?, change_time = current_timestamp, group_permission = ?, role_permission = ?,  '
                                 . ' change_by = ? WHERE id = ?',
                         Bind => [ \$NewCategoryName, \$Param{GroupPermission}, \$Param{RolePermission}, \$Param{UserID}, \$CategoryID ],
                     );
@@ -459,11 +459,11 @@ sub TextModuleCategoryLookup {
 
     my $SQL;
     if ( $Param{ID} ) {
-        $SQL     = 'SELECT name FROM text_module_category WHERE id = ?';
+        $SQL     = 'SELECT name FROM kix_text_module_category WHERE id = ?';
         $BindObj = $Param{ID};
     }
     elsif ( $Param{Name} ) {
-        $SQL     = 'SELECT id FROM text_module_category WHERE name = ?';
+        $SQL     = 'SELECT id FROM kix_text_module_category WHERE name = ?';
         $BindObj = $Param{Name};
     }
 
@@ -506,7 +506,7 @@ sub TextModuleCategoryGet {
 
     # sql
     my $SQL
-        = 'SELECT name, group_permission, role_permission FROM text_module_category '
+        = 'SELECT name, group_permission, role_permission FROM kix_text_module_category '
         . 'WHERE id = ' . $Param{ID};
 
     return if !$Self->{DBObject}->Prepare( SQL => $SQL );
@@ -561,7 +561,7 @@ sub TextModuleCategoryDelete {
         );
 
         my $Result = $Self->{DBObject}->Do(
-            SQL  => 'DELETE FROM text_module_category WHERE id = ?',
+            SQL  => 'DELETE FROM kix_text_module_category WHERE id = ?',
             Bind => [ \$ID ],
         );
     }
@@ -590,7 +590,7 @@ sub TextModuleCategoryList {
         $WHEREClauseExt .= " AND name like \'%$Name\%'";
     }
 
-    my $SQL = "SELECT id, name FROM text_module_category WHERE 1=1";
+    my $SQL = "SELECT id, name FROM kix_text_module_category WHERE 1=1";
 
     return if !$Self->{DBObject}->Prepare( SQL => $SQL . $WHEREClauseExt . " ORDER by name" );
 
@@ -618,8 +618,8 @@ sub TextModuleCategoryAssignmentCounts {
     my %Result;
 
     my $SQL = "SELECT tmc.id, count(*) FROM "
-        . "text_module_category tmc, "
-        . "text_module_object_link tmol "
+        . "kix_text_module_category tmc, "
+        . "kix_text_module_object_link tmol "
         . "WHERE tmol.object_type = 'TextModuleCategory' "
         . "AND tmol.object_id = tmc.id "
         . "GROUP BY tmc.id";
@@ -1178,14 +1178,14 @@ sub TextModuleObjectLinkGet {
     if ( $Param{TextModuleID} ) {
         return if !$Self->{DBObject}->Prepare(
             SQL =>
-                'SELECT object_id FROM text_module_object_link WHERE object_type = ? AND text_module_id = ? ',
+                'SELECT object_id FROM kix_text_module_object_link WHERE object_type = ? AND text_module_id = ? ',
             Bind => [ \$Param{ObjectType}, \$Param{TextModuleID} ],
         );
     }
     else {
         return if !$Self->{DBObject}->Prepare(
             SQL =>
-                'SELECT text_module_id FROM text_module_object_link WHERE object_type = ? AND object_id = ? ',
+                'SELECT text_module_id FROM kix_text_module_object_link WHERE object_type = ? AND object_id = ? ',
             Bind => [ \$Param{ObjectType}, \$Param{ObjectID} ],
         );
     }
@@ -1242,13 +1242,13 @@ sub TextModuleObjectLinkDelete {
         if ( $Param{ObjectType} ) {
             return $Self->{DBObject}->Do(
                 SQL =>
-                    'DELETE FROM text_module_object_link WHERE object_type = ? AND text_module_id = ?',
+                    'DELETE FROM kix_text_module_object_link WHERE object_type = ? AND text_module_id = ?',
                 Bind => [ \$Param{ObjectType}, \$Param{TextModuleID} ],
             );
         }
         else {
             return $Self->{DBObject}->Do(
-                SQL  => 'DELETE FROM text_module_object_link WHERE text_module_id = ?',
+                SQL  => 'DELETE FROM kix_text_module_object_link WHERE text_module_id = ?',
                 Bind => [ \$Param{TextModuleID} ],
             );
         }
@@ -1256,7 +1256,7 @@ sub TextModuleObjectLinkDelete {
     else {
         return $Self->{DBObject}->Do(
             SQL =>
-                'DELETE FROM text_module_object_link WHERE object_type = ? AND object_id = ?',
+                'DELETE FROM kix_text_module_object_link WHERE object_type = ? AND object_id = ?',
             Bind => [ \$Param{ObjectType}, \$Param{ObjectID} ],
         );
     }
@@ -1287,7 +1287,7 @@ sub TextModuleObjectLinkCreate {
         }
     }
 
-    my $SQL = "INSERT INTO text_module_object_link "
+    my $SQL = "INSERT INTO kix_text_module_object_link "
         . " (text_module_id, object_type, object_id, create_time, create_by, change_time, change_by)"
         . " VALUES  (?, ?, ?, current_timestamp, ?, current_timestamp, ?)";
 
@@ -1314,11 +1314,11 @@ sub TextModuleObjectLinkCreate {
 
 sub TextModuleCount {
     my ( $Self, %Param ) = @_;
-    my $SQL = "SELECT count(*) FROM text_module t";
+    my $SQL = "SELECT count(*) FROM kix_text_module t";
 
     if ( defined $Param{Type} && $Param{Type} =~ /^UNASSIGNED::(.*?)$/g ) {
         $SQL
-            .= " WHERE NOT EXISTS (SELECT object_id FROM text_module_object_link ol WHERE object_type = '"
+            .= " WHERE NOT EXISTS (SELECT object_id FROM kix_text_module_object_link ol WHERE object_type = '"
             . $1
             . "' AND ol.text_module_id = t.id)";
     }
@@ -1426,68 +1426,68 @@ sub TextModuleList {
 
     if ( $Param{CategoryID} && $Param{CategoryID} !~ /^_/ ) {
         $WHEREClauseExt .= " AND EXISTS ( "
-            . "   SELECT text_module_id FROM text_module_object_link olt "
+            . "   SELECT text_module_id FROM kix_text_module_object_link olt "
             . "      WHERE olt.text_module_id = t.id "
             . "        AND olt.object_type = 'TextModuleCategory' "
             . "        AND olt.object_id = $Param{CategoryID})";
     }
     elsif ( defined $Param{CategoryID} && $Param{CategoryID} eq '_UNASSIGNED_' ) {
         $WHEREClauseExt .= " AND NOT EXISTS ( "
-            . "   SELECT text_module_id FROM text_module_object_link olt "
+            . "   SELECT text_module_id FROM kix_text_module_object_link olt "
             . "      WHERE olt.text_module_id = t.id "
             . "        AND olt.object_type = 'TextModuleCategory')";
     }
 
     if ( $Param{QueueID} ) {
         $WHEREClauseExt .= " AND (EXISTS ( "
-            . "   SELECT text_module_id FROM text_module_object_link olt "
+            . "   SELECT text_module_id FROM kix_text_module_object_link olt "
             . "      WHERE olt.text_module_id = t.id "
             . "        AND olt.object_type = 'Queue' "
             . "        AND olt.object_id = $Param{QueueID}) "
             . "   OR NOT EXISTS ( "
-            . "   SELECT text_module_id FROM text_module_object_link olt "
+            . "   SELECT text_module_id FROM kix_text_module_object_link olt "
             . "      WHERE olt.text_module_id = t.id "
             . "        AND olt.object_type = 'Queue'))";
 
     }
     if ( $Param{TicketTypeID} ) {
         $WHEREClauseExt .= " AND (EXISTS ( "
-            . "   SELECT text_module_id FROM text_module_object_link olt "
+            . "   SELECT text_module_id FROM kix_text_module_object_link olt "
             . "      WHERE olt.text_module_id = t.id "
             . "        AND olt.object_type = 'TicketType' "
             . "        AND olt.object_id = $Param{TicketTypeID}) "
             . "   OR NOT EXISTS ( "
-            . "   SELECT text_module_id FROM text_module_object_link olt "
+            . "   SELECT text_module_id FROM kix_text_module_object_link olt "
             . "      WHERE olt.text_module_id = t.id "
             . "        AND olt.object_type = 'TicketType'))";
     }
     if ( $Param{TicketStateID} ) {
         $WHEREClauseExt .= " AND (EXISTS ( "
-            . "   SELECT text_module_id FROM text_module_object_link olt "
+            . "   SELECT text_module_id FROM kix_text_module_object_link olt "
             . "      WHERE olt.text_module_id = t.id "
             . "        AND olt.object_type = 'TicketState' "
             . "        AND olt.object_id = $Param{TicketStateID}) "
             . "   OR NOT EXISTS ( "
-            . "   SELECT text_module_id FROM text_module_object_link olt "
+            . "   SELECT text_module_id FROM kix_text_module_object_link olt "
             . "      WHERE olt.text_module_id = t.id "
             . "        AND olt.object_type = 'TicketState'))";
     }
 
     my $SQL = "SELECT t.id, t.name, t.valid_id, t.keywords, t.comment1, "
         . "t.comment2, t.text, t.language, t.f_agent, t.f_customer, t.f_public, t.subject "
-        . ",        (SELECT ktmc.name FROM text_module_object_link ktmol
-           INNER JOIN text_module_category ktmc on ktmol.object_id = ktmc.id
+        . ",        (SELECT ktmc.name FROM kix_text_module_object_link ktmol
+           INNER JOIN kix_text_module_category ktmc on ktmol.object_id = ktmc.id
            WHERE object_type = 'TextModuleCategory' AND t.id = ktmol.text_module_id
        ORDER BY ktmc.change_time LIMIT 1) as category "
-        . ",        (SELECT ktmc.group_permission FROM text_module_object_link ktmol
-           INNER JOIN text_module_category ktmc on ktmol.object_id = ktmc.id
+        . ",        (SELECT ktmc.group_permission FROM kix_text_module_object_link ktmol
+           INNER JOIN kix_text_module_category ktmc on ktmol.object_id = ktmc.id
            WHERE object_type = 'TextModuleCategory' AND t.id = ktmol.text_module_id
        ORDER BY ktmc.change_time LIMIT 1) as needed_groups "
-        . ",        (SELECT ktmc.role_permission FROM text_module_object_link ktmol
-           INNER JOIN text_module_category ktmc on ktmol.object_id = ktmc.id
+        . ",        (SELECT ktmc.role_permission FROM kix_text_module_object_link ktmol
+           INNER JOIN kix_text_module_category ktmc on ktmol.object_id = ktmc.id
            WHERE object_type = 'TextModuleCategory' AND t.id = ktmol.text_module_id
        ORDER BY ktmc.change_time LIMIT 1) as needed_role "
-        . "FROM text_module t";
+        . "FROM kix_text_module t";
 
     if ( defined $Param{ValidID} && $Param{ValidID} ) {
         $SQL .= " WHERE t.valid_id = $Param{ValidID} " . $WHEREClauseExt;
@@ -1606,12 +1606,12 @@ sub TextModuleUpdate {
     }
 
     # build sql...
-    my $SQL = "UPDATE text_module SET "
+    my $SQL = "UPDATE kix_text_module SET "
         . " name = ?, text = ?, subject = ?, keywords = ?, language = ?, "
         . " comment1 = ?, comment2 = ?, valid_id = ?, "
         . " f_agent = ?, f_customer = ?, f_public = ?, "
         . " change_time = current_timestamp, change_by = ? "
-        . ", is_visible_for_customer = ?, time_units = ? "
+        . ", is_visible_for_customer = ?"
         . "WHERE id = ?";
 
     # do the db insert...
@@ -1622,7 +1622,7 @@ sub TextModuleUpdate {
             \$Param{Keywords}, \$Param{Language},
             \$Param{Comment1}, \$Param{Comment2}, \$Param{ValidID},
             \$Param{Agent},    \$Param{Customer}, \$Param{Public},
-            \$Param{UserID}, \$Param{IsVisibleForCustomer}, \$Param{TimeUnits},
+            \$Param{UserID}, \$Param{IsVisibleForCustomer},
             \$Param{ID},
         ],
     );
@@ -1686,13 +1686,13 @@ sub TextModuleLookup {
     # get data
     if ( $Param{Name} ) {
         return if !$Self->{DBObject}->Prepare(
-            SQL  => 'SELECT id FROM text_module WHERE name = ?',
+            SQL  => 'SELECT id FROM kix_text_module WHERE name = ?',
             Bind => [ \$Param{Name} ],
         );
     }
     else {
         return if !$Self->{DBObject}->Prepare(
-            SQL  => 'SELECT name FROM text_module WHERE id = ?',
+            SQL  => 'SELECT name FROM kix_text_module WHERE id = ?',
             Bind => [ \$Param{TextModuleID} ],
         );
     }
