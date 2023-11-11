@@ -14,6 +14,7 @@ use warnings;
 
 use File::Temp qw( tempfile tempdir );
 use File::Basename;
+use JSON;
 
 our $ObjectManagerDisabled = 1;
 
@@ -55,6 +56,9 @@ sub Run {
         $GetParam{$_} = $ParamObject->GetParam( Param => $_ ) || '';
     }
 
+    my @GroupPermissions = $ParamObject->GetArray( Param => 'GroupPermission' );
+    $GetParam{GroupPermissions} = \@GroupPermissions;
+
     if ( !$GetParam{ID} ) {
         $GetParam{ID} = $GetParam{SelectedCategoryID};    # fallback
     }
@@ -92,13 +96,8 @@ sub Run {
         Valid => 1,
     );
 
-    my %Groups;
-    for (keys %GroupsRaw) {
-        $Groups{$GroupsRaw{$_}} = $GroupsRaw{$_};
-    }
-
     $Param{GroupPermissionStrg} = $LayoutObject->BuildSelection(
-        Data         => \%Groups,
+        Data         => \%GroupsRaw,
         Name         => 'GroupPermission',
         SelectedID   => $GetParam{GroupPermission},
         PossibleNone => 1,
@@ -137,6 +136,7 @@ sub Run {
             %TextModuleCategoryData = $TextModuleObject->TextModuleCategoryGet(
                 ID => $GetParam{ID}
             );
+
             $GetParam{RolePermission} = $TextModuleCategoryData{RolePermission};
 
             if ($TextModuleCategoryData{Name} =~ /::/) {
@@ -170,11 +170,12 @@ sub Run {
         );
 
         $Param{GroupPermissionStrg} = $LayoutObject->BuildSelection(
-            Data         => \%Groups,
+            Data         => \%GroupsRaw,
             Name         => 'GroupPermission',
             SelectedID   => $GetParam{GroupPermission},
             PossibleNone => 1,
             Class        => 'Modernize',
+            Multiple     => 1
         );
         $LayoutObject->Block(
             Name => 'Edit',

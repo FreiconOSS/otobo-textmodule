@@ -97,10 +97,13 @@ sub _Widget {
     );
 
     my $categoryTree = {};
+
+    # Group permissions for user
     my %MemberOf = $GroupObject->PermissionUserGroupGet(
         UserID => $Self->{UserID},
         Type   => "rw",
     );
+
     my %RoleList =  $GroupObject->PermissionUserRoleGet(
         UserID => $Self->{UserID},
     );
@@ -110,9 +113,25 @@ sub _Widget {
         my $category = ($HashOrArrayRef{$categoryKey} || '');
         my @p = split /::/, ($category->{Category} || 'Ohne Kategorie');
 
-        if ($category->{NeededGroups} && !exists($MemberOf{$category->{NeededGroups}})) {
+        # if ($category->{NeededGroups} && !exists($MemberOf{$category->{NeededGroups}})) {
+        #     next LOOP;
+        # }
+
+        # User with this GroupIDs can use this text module category
+        my @PossibleGroupIDs = @{$HashOrArrayRef{$categoryKey}->{NeededGroups}};
+
+        # If no permissions given. All users have permission
+        my $HasPermission = scalar(@PossibleGroupIDs) == 0 ? 1 : 0;
+        for my $GroupID (@PossibleGroupIDs) {
+            if (exists($MemberOf{$GroupID})) {
+                $HasPermission = 1;
+            }
+        }
+
+        if (!$HasPermission) {
             next LOOP;
         }
+
 
 
         if ($category->{NeededRole}) {
@@ -228,12 +247,12 @@ sub _buildTextModuleNode {
     foreach my $dataRowKey (sort @sortedKeys) {
         if ($dataRowKey eq "_leafs") {
         } else {
-                $out .= _buildTextModuleNode($dataArray->{$dataRowKey}, $dataRowKey, %MemberOf);
+            $out .= _buildTextModuleNode($dataArray->{$dataRowKey}, $dataRowKey, %MemberOf);
         }
     }
 
     foreach (@{$dataArray->{"_leafs"}}) {
-            $out .= '<li class="text_module_item" data-module="' . $_->{ID} . '">' . $_->{Name} . '</li>';
+        $out .= '<li class="text_module_item" data-module="' . $_->{ID} . '">' . $_->{Name} . '</li>';
     }
 
     $out .= "</ul>\n";
