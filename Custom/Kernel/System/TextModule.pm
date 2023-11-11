@@ -12,6 +12,7 @@ package Kernel::System::TextModule;
 use strict;
 use warnings;
 use Data::Dumper;
+use JSON;
 
 use Kernel::System::VariableCheck qw(:all);
 
@@ -52,38 +53,37 @@ create a TextModule object. Do not     'it directly, instead use:
 =cut
 
 sub new {
-    my ( $Type, %Param ) = @_;
+    my ($Type, %Param) = @_;
 
     # allocate new hash for object
     my $Self = {};
-    bless( $Self, $Type );
+    bless($Self, $Type);
 
     # get needed objects
-    $Self->{DBObject}     = $Kernel::OM->Get('Kernel::System::DB');
+    $Self->{DBObject} = $Kernel::OM->Get('Kernel::System::DB');
     $Self->{ConfigObject} = $Kernel::OM->Get('Kernel::Config');
-    $Self->{CacheObject}  = $Kernel::OM->Get('Kernel::System::Cache');
-    $Self->{CSVObject}    = $Kernel::OM->Get('Kernel::System::CSV');
-    $Self->{LogObject}    = $Kernel::OM->Get('Kernel::System::Log');
-    $Self->{MainObject}   = $Kernel::OM->Get('Kernel::System::Main');
-    $Self->{QueueObject}  = $Kernel::OM->Get('Kernel::System::Queue');
-    $Self->{StateObject}  = $Kernel::OM->Get('Kernel::System::State');
-    $Self->{TypeObject}   = $Kernel::OM->Get('Kernel::System::Type');
-    $Self->{XMLObject}    = $Kernel::OM->Get('Kernel::System::XML');
+    $Self->{CacheObject} = $Kernel::OM->Get('Kernel::System::Cache');
+    $Self->{CSVObject} = $Kernel::OM->Get('Kernel::System::CSV');
+    $Self->{LogObject} = $Kernel::OM->Get('Kernel::System::Log');
+    $Self->{MainObject} = $Kernel::OM->Get('Kernel::System::Main');
+    $Self->{QueueObject} = $Kernel::OM->Get('Kernel::System::Queue');
+    $Self->{StateObject} = $Kernel::OM->Get('Kernel::System::State');
+    $Self->{TypeObject} = $Kernel::OM->Get('Kernel::System::Type');
+    $Self->{XMLObject} = $Kernel::OM->Get('Kernel::System::XML');
 
     # load text module extension modules
     my $CustomModule = $Self->{ConfigObject}->Get('TextModule::CustomModule');
     if ($CustomModule) {
 
         my %ModuleList;
-        if ( ref $CustomModule eq 'HASH' ) {
+        if (ref $CustomModule eq 'HASH') {
             %ModuleList = %{$CustomModule};
-        }
-        else {
+        } else {
             $ModuleList{Init} = $CustomModule;
         }
 
         MODULEKEY:
-        for my $ModuleKey ( sort keys %ModuleList ) {
+        for my $ModuleKey (sort keys %ModuleList) {
 
             my $Module = $ModuleList{$ModuleKey};
 
@@ -117,31 +117,30 @@ Adds a new TextModule
 =cut
 
 sub TextModuleAdd {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
 
     # check needed stuff
     for (qw(Name ValidID TextModule UserID)) {
-        if ( !defined( $Param{$_} ) ) {
-            $Self->{LogObject}->Log( Priority => 'error', Message => "Need $_!" );
+        if (!defined($Param{$_})) {
+            $Self->{LogObject}->Log(Priority => 'error', Message => "Need $_!");
             return;
         }
     }
 
     # default language...
-    if ( !$Param{Language} ) {
+    if (!$Param{Language}) {
         $Param{Language} = $Self->{ConfigObject}->Get('DefaultLanguage') || 'en';
     }
 
     # set frontend display flags...
-    for my $CurrKey (qw(Agent Customer Public )) {
-        if ( $Param{$CurrKey} ) {
+    for my $CurrKey (qw(Agent Customer Public)) {
+        if ($Param{$CurrKey}) {
             $Param{$CurrKey} = 1;
-        }
-        else {
+        } else {
             $Param{$CurrKey} = 0;
         }
     }
-    if ( !$Param{Agent} && !$Param{Customer} && !$Param{Public} ) {
+    if (!$Param{Agent} && !$Param{Customer} && !$Param{Public}) {
         $Param{Agent} = 1;
     }
 
@@ -173,16 +172,15 @@ sub TextModuleAdd {
         $Self->{CacheObject}->CleanUp(Type => 'TextModule');
 
         return 0 if !$Self->{DBObject}->Prepare(
-            SQL => 'SELECT max(id) FROM text_module '
+            SQL  => 'SELECT max(id) FROM text_module '
                 . " WHERE name = ? AND language = ? AND create_by = ? ",
             Bind => [ \$Param{Name}, \$Param{Language}, \$Param{UserID} ],
         );
 
-        while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+        while (my @Row = $Self->{DBObject}->FetchrowArray()) {
             return $Row[0];
         }
-    }
-    else {
+    } else {
         $Self->{LogObject}->Log(
             Priority => 'error',
             Message  => "TextModules::DB insert failed!",
@@ -203,17 +201,17 @@ Returns an existing TextModule.
 =cut
 
 sub TextModuleGet {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
 
     # check required params...
-    if ( !$Param{ID} ) {
-        $Self->{LogObject}->Log( Priority => 'error', Message => "Need ID!" );
+    if (!$Param{ID}) {
+        $Self->{LogObject}->Log(Priority => 'error', Message => "Need ID!");
         return;
     }
 
     # read cache
     my $CacheKey = 'TextModule::' . $Param{ID};
-    my $Cache    = $Self->{CacheObject}->Get(
+    my $Cache = $Self->{CacheObject}->Get(
         Type => 'TextModule',
         Key  => $CacheKey
     );
@@ -221,7 +219,7 @@ sub TextModuleGet {
 
     # db quote
     for (qw(ID)) {
-        $Param{$_} = $Self->{DBObject}->Quote( $Param{$_}, 'Integer' );
+        $Param{$_} = $Self->{DBObject}->Quote($Param{$_}, 'Integer');
     }
 
     # sql
@@ -231,22 +229,22 @@ sub TextModuleGet {
         . 'FROM text_module '
         . 'WHERE id = ' . $Param{ID};
 
-    return if !$Self->{DBObject}->Prepare( SQL => $SQL );
+    return if !$Self->{DBObject}->Prepare(SQL => $SQL);
 
-    if ( my @Data = $Self->{DBObject}->FetchrowArray() ) {
+    if (my @Data = $Self->{DBObject}->FetchrowArray()) {
         my %Data = (
-            ID         => $Param{ID},
-            Name       => $Data[0],
-            ValidID    => $Data[1],
-            Keywords   => $Data[2],
-            Comment1   => $Data[3],
-            Comment2   => $Data[4],
-            TextModule => $Data[5],
-            Language   => $Data[6],
-            Agent      => $Data[7],
-            Customer   => $Data[8],
-            Public     => $Data[9],
-            Subject    => $Data[10],
+            ID                   => $Param{ID},
+            Name                 => $Data[0],
+            ValidID              => $Data[1],
+            Keywords             => $Data[2],
+            Comment1             => $Data[3],
+            Comment2             => $Data[4],
+            TextModule           => $Data[5],
+            Language             => $Data[6],
+            Agent                => $Data[7],
+            Customer             => $Data[8],
+            Public               => $Data[9],
+            Subject              => $Data[10],
 
             IsVisibleForCustomer => $Data[11],
         );
@@ -275,11 +273,11 @@ Deletes a text module and all queue relations.
 =cut
 
 sub TextModuleDelete {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
 
     # check required params...
-    if ( !$Param{ID} ) {
-        $Self->{LogObject}->Log( Priority => 'error', Message => 'TextModuleDelete: Need ID!' );
+    if (!$Param{ID}) {
+        $Self->{LogObject}->Log(Priority => 'error', Message => 'TextModuleDelete: Need ID!');
         return;
     }
 
@@ -312,15 +310,17 @@ Adds a new TextModuleCategory
 =cut
 
 sub TextModuleCategoryAdd {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
 
     # check needed stuff
     for (qw(Name UserID)) {
-        if ( !defined( $Param{$_} ) ) {
-            $Self->{LogObject}->Log( Priority => 'error', Message => "Need $_!" );
+        if (!defined($Param{$_})) {
+            $Self->{LogObject}->Log(Priority => 'error', Message => "Need $_!");
             return;
         }
     }
+
+    my $GroupPermissionStrg = encode_json($Param{GroupPermissions});
 
     # build sql...
     my $SQL = "INSERT INTO text_module_category "
@@ -332,23 +332,22 @@ sub TextModuleCategoryAdd {
     my $DBInsert = $Self->{DBObject}->Do(
         SQL  => $SQL,
         Bind => [
-            \$Param{Name}, \$Param{UserID}, \$Param{UserID}, \$Param{GroupPermission}, \$Param{RolePermission},
+            \$Param{Name}, \$Param{UserID}, \$Param{UserID}, \$GroupPermissionStrg, \$Param{RolePermission},
         ],
     );
 
     #handle the insert result...
     if ($DBInsert) {
         return 0 if !$Self->{DBObject}->Prepare(
-            SQL => 'SELECT max(id) FROM text_module_category '
+            SQL  => 'SELECT max(id) FROM text_module_category '
                 . " WHERE name = ? ",
             Bind => [ \$Param{Name} ],
         );
 
-        while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+        while (my @Row = $Self->{DBObject}->FetchrowArray()) {
             return $Row[0];
         }
-    }
-    else {
+    } else {
         $Self->{LogObject}->Log(
             Priority => 'error',
             Message  => "TextModuleCategory::DB insert failed!",
@@ -370,12 +369,12 @@ Updates an existing TextModuleCategory
 =cut
 
 sub TextModuleCategoryUpdate {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
 
     # check required params...
     for (qw(ID Name)) {
-        if ( !defined( $Param{$_} ) ) {
-            $Self->{LogObject}->Log( Priority => 'error', Message => "Need $_!" );
+        if (!defined($Param{$_})) {
+            $Self->{LogObject}->Log(Priority => 'error', Message => "Need $_!");
             return;
         }
     }
@@ -389,6 +388,8 @@ sub TextModuleCategoryUpdate {
 
     my $Count = 0;
 
+    my $GroupPermissionStrg = encode_json($Param{GroupPermissions});
+
     # build sql...
     $SQL = "UPDATE text_module_category SET "
         . " name = ?, change_time = current_timestamp, change_by = ?, group_permission = ?, role_permission = ? "
@@ -398,7 +399,7 @@ sub TextModuleCategoryUpdate {
     my $DBUpdate = $Self->{DBObject}->Do(
         SQL  => $SQL,
         Bind => [
-            \$Param{Name}, \$Param{UserID}, \$Param{GroupPermission}, \$Param{RolePermission}, \$Param{ID}
+            \$Param{Name}, \$Param{UserID}, \$GroupPermissionStrg, \$Param{RolePermission}, \$Param{ID}
         ],
     );
 
@@ -407,15 +408,15 @@ sub TextModuleCategoryUpdate {
 
         # update all sub category names
         my %AllCategories = $Self->TextModuleCategoryList();
-        my @ParentCategory = split( /::/, $OldCategory{Name} );
-        for my $CategoryID ( keys %AllCategories ) {
-            my @SubCategory = split( /::/, $AllCategories{$CategoryID} );
-            if ( $#SubCategory > $#ParentCategory ) {
-                if ( $AllCategories{$CategoryID} =~ /^\Q$OldCategory{Name}::\E/i ) {
+        my @ParentCategory = split(/::/, $OldCategory{Name});
+        for my $CategoryID (keys %AllCategories) {
+            my @SubCategory = split(/::/, $AllCategories{$CategoryID});
+            if ($#SubCategory > $#ParentCategory) {
+                if ($AllCategories{$CategoryID} =~ /^\Q$OldCategory{Name}::\E/i) {
                     my $NewCategoryName = $AllCategories{$CategoryID};
                     $NewCategoryName =~ s/\Q$OldCategory{Name}\E/$Param{Name}/;
                     return if !$Self->{DBObject}->Do(
-                        SQL =>
+                        SQL  =>
                             'UPDATE text_module_category SET name = ?, change_time = current_timestamp, group_permission = ?, role_permission = ?,  '
                                 . ' change_by = ? WHERE id = ?',
                         Bind => [ \$NewCategoryName, \$Param{GroupPermission}, \$Param{RolePermission}, \$Param{UserID}, \$CategoryID ],
@@ -424,8 +425,7 @@ sub TextModuleCategoryUpdate {
             }
         }
         return $Param{ID};
-    }
-    else {
+    } else {
         $Self->{LogObject}->Log(
             Priority => 'error',
             Message  => "TextModuleCategory::DB update of $Param{ID} failed!",
@@ -447,22 +447,21 @@ Returns ID or Name of an existing TextModuleCategory.
 =cut
 
 sub TextModuleCategoryLookup {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
     my $BindObj;
 
     # check required params...
-    if ( !$Param{ID} && !$Param{Name} ) {
-        $Self->{LogObject}->Log( Priority => 'error', Message => "Need ID or Name!" );
+    if (!$Param{ID} && !$Param{Name}) {
+        $Self->{LogObject}->Log(Priority => 'error', Message => "Need ID or Name!");
         return;
     }
 
     my $SQL;
-    if ( $Param{ID} ) {
-        $SQL     = 'SELECT name FROM text_module_category WHERE id = ?';
+    if ($Param{ID}) {
+        $SQL = 'SELECT name FROM text_module_category WHERE id = ?';
         $BindObj = $Param{ID};
-    }
-    elsif ( $Param{Name} ) {
-        $SQL     = 'SELECT id FROM text_module_category WHERE name = ?';
+    } elsif ($Param{Name}) {
+        $SQL = 'SELECT id FROM text_module_category WHERE name = ?';
         $BindObj = $Param{Name};
     }
 
@@ -472,7 +471,7 @@ sub TextModuleCategoryLookup {
     );
 
     my $Result;
-    if ( my @Data = $Self->{DBObject}->FetchrowArray() ) {
+    if (my @Data = $Self->{DBObject}->FetchrowArray()) {
         $Result = $Data[0];
     }
 
@@ -490,17 +489,17 @@ Returns an existing TextModuleCategory.
 =cut
 
 sub TextModuleCategoryGet {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
 
     # check required params...
-    if ( !$Param{ID} ) {
-        $Self->{LogObject}->Log( Priority => 'error', Message => "Need ID!" );
+    if (!$Param{ID}) {
+        $Self->{LogObject}->Log(Priority => 'error', Message => "Need ID!");
         return;
     }
 
     # db quote
     for (qw(ID)) {
-        $Param{$_} = $Self->{DBObject}->Quote( $Param{$_}, 'Integer' );
+        $Param{$_} = $Self->{DBObject}->Quote($Param{$_}, 'Integer');
     }
 
     # sql
@@ -508,13 +507,18 @@ sub TextModuleCategoryGet {
         = 'SELECT name, group_permission, role_permission FROM text_module_category '
         . 'WHERE id = ' . $Param{ID};
 
-    return if !$Self->{DBObject}->Prepare( SQL => $SQL );
+    return if !$Self->{DBObject}->Prepare(SQL => $SQL);
 
-    if ( my @Data = $Self->{DBObject}->FetchrowArray() ) {
+    if (my @Data = $Self->{DBObject}->FetchrowArray()) {
+        my @GroupPermissions = [];
+        if ($Data[1]) {
+            @GroupPermissions = decode_json($Data[1]);
+        }
+
         my %Data = (
             ID              => $Param{ID},
             Name            => $Data[0],
-            GroupPermission => $Data[1],
+            GroupPermission => @GroupPermissions,
             RolePermission  => $Data[2],
         );
         return %Data;
@@ -534,12 +538,12 @@ Deletes a TextModuleCategory and all TextModule links
 =cut
 
 sub TextModuleCategoryDelete {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
 
     # check required params...
-    if ( !$Param{ID} ) {
+    if (!$Param{ID}) {
         $Self->{LogObject}
-            ->Log( Priority => 'error', Message => 'TextModuleCategoryDelete: Need ID!' );
+            ->Log(Priority => 'error', Message => 'TextModuleCategoryDelete: Need ID!');
         return;
     }
 
@@ -551,7 +555,7 @@ sub TextModuleCategoryDelete {
     );
     $CategoryList{ $Param{ID} } = $CategoryName;
 
-    foreach my $ID ( keys %CategoryList ) {
+    foreach my $ID (keys %CategoryList) {
 
         # delete category <-> text module link
         $Self->TextModuleObjectLinkDelete(
@@ -579,11 +583,11 @@ Returns all TextModuleCategories
 =cut
 
 sub TextModuleCategoryList {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
     my $WHEREClauseExt = '';
     my %Result;
 
-    if ( $Param{Name} ) {
+    if ($Param{Name}) {
         my $Name = $Param{Name};
         $Name =~ s/\*/%/g;
         $WHEREClauseExt .= " AND name like \'%$Name\%'";
@@ -591,13 +595,13 @@ sub TextModuleCategoryList {
 
     my $SQL = "SELECT id, name FROM text_module_category WHERE 1=1";
 
-    return if !$Self->{DBObject}->Prepare( SQL => $SQL . $WHEREClauseExt . " ORDER by name" );
+    return if !$Self->{DBObject}->Prepare(SQL => $SQL . $WHEREClauseExt . " ORDER by name");
 
     my $Count = 0;
-    while ( my @Data = $Self->{DBObject}->FetchrowArray() ) {
+    while (my @Data = $Self->{DBObject}->FetchrowArray()) {
         $Result{ $Data[0] } = $Data[1];
 
-        last if ( $Param{Limit} && ++$Count >= $Param{Limit} );
+        last if ($Param{Limit} && ++$Count >= $Param{Limit});
     }
 
     return %Result;
@@ -613,7 +617,7 @@ Returns all assignment counts for all categores
 =cut
 
 sub TextModuleCategoryAssignmentCounts {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
     my %Result;
 
     my $SQL = "SELECT tmc.id, count(*) FROM "
@@ -622,9 +626,9 @@ sub TextModuleCategoryAssignmentCounts {
         . "WHERE tmol.object_type = 'TextModuleCategory' "
         . "AND tmol.object_id = tmc.id "
         . "GROUP BY tmc.id";
-    return if !$Self->{DBObject}->Prepare( SQL => $SQL );
+    return if !$Self->{DBObject}->Prepare(SQL => $SQL);
 
-    while ( my @Data = $Self->{DBObject}->FetchrowArray() ) {
+    while (my @Data = $Self->{DBObject}->FetchrowArray()) {
         $Result{ $Data[0] } = $Data[1];
     }
 
@@ -643,61 +647,60 @@ Exports all TextmoduleCategories into XML or CSV document.
 =cut
 
 sub TextModuleCategoriesExport {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
     my $Result = "";
 
     my %TextModuleCategoryList = $Self->TextModuleCategoryList(%Param);
     my @ExportDataArray;
 
-    if ( $Param{Format} eq 'XML' ) {
-        push( @ExportDataArray, undef );
+    if ($Param{Format} eq 'XML') {
+        push(@ExportDataArray, undef);
 
-        for my $ID ( sort keys %TextModuleCategoryList ) {
+        for my $ID (sort keys %TextModuleCategoryList) {
 
-            my %TextModuleCategory = $Self->TextModuleCategoryGet( ID => $ID );
+            my %TextModuleCategory = $Self->TextModuleCategoryGet(ID => $ID);
             my %CurrTMC = ();
-            for my $CurrKey ( keys %TextModuleCategory ) {
+            for my $CurrKey (keys %TextModuleCategory) {
                 $CurrTMC{$CurrKey}->[0] = undef;
                 $CurrTMC{$CurrKey}->[1]->{Content} = $TextModuleCategory{$CurrKey};
             }
 
             # export *-lists...
-            push( @ExportDataArray, \%CurrTMC );
+            push(@ExportDataArray, \%CurrTMC);
         }
 
         my @XMLHashArray;
-        push( @XMLHashArray, undef );
+        push(@XMLHashArray, undef);
 
         my %XMLHashTextModuleCategory = ();
         $XMLHashTextModuleCategory{'TextModuleCategoryList'}->[0] = undef;
         $XMLHashTextModuleCategory{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'}
             = \@ExportDataArray;
 
-        push( @XMLHashArray, \%XMLHashTextModuleCategory );
+        push(@XMLHashArray, \%XMLHashTextModuleCategory);
 
         $Result = $Self->{XMLObject}->XMLHash2XML(@XMLHashArray);
-    }
-    elsif ( $Param{Format} eq 'CSV' ) {
+    } elsif ($Param{Format} eq 'CSV') {
         my @ExportHeadArray;
 
-        for my $ID ( sort keys %TextModuleCategoryList ) {
+        for my $ID (sort keys %TextModuleCategoryList) {
             my @ExportRowArray;
 
-            my %TextModuleCategory = $Self->TextModuleCategoryGet( ID => $ID );
+            my %TextModuleCategory = $Self->TextModuleCategoryGet(ID => $ID);
 
             # create header
-            if ( !@ExportHeadArray ) {
-                for my $CurrKey ( sort keys(%TextModuleCategory) ) {
-                    push( @ExportHeadArray, $CurrKey );
+            if (!@ExportHeadArray) {
+                for my $CurrKey (sort keys(%TextModuleCategory)) {
+                    push(@ExportHeadArray, $CurrKey);
                 }
             }
 
             # add all keys
-            for my $CurrKey ( sort keys(%TextModuleCategory) ) {
-                push( @ExportRowArray, $TextModuleCategory{$CurrKey} );
+            for my $CurrKey (sort keys(%TextModuleCategory)) {
+                push(@ExportRowArray, $TextModuleCategory{$CurrKey});
             }
 
-            push( @ExportDataArray, \@ExportRowArray );
+            push(@ExportDataArray, \@ExportRowArray);
         }
 
         $Result = $Self->{CSVObject}->Array2CSV(
@@ -725,16 +728,15 @@ Import TextmoduleCategories from XML document.
 =cut
 
 sub TextModuleCategoriesImport {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
     my $Result;
 
-    if ( !$Param{Format} || $Param{Format} eq ' XML' ) {
+    if (!$Param{Format} || $Param{Format} eq ' XML') {
         $Result = $Self->_ImportTextModuleCategoriesXML(
             %Param,
             XMLString => $Param{Content},
         );
-    }
-    elsif ( $Param{Format} eq 'CSV' ) {
+    } elsif ($Param{Format} eq 'CSV') {
         $Result = $Self->_ImportTextModuleCategoriesCSV(
             %Param,
         );
@@ -758,47 +760,47 @@ import TextModuleCategories from CSV document.
 =cut
 
 sub _ImportTextModuleCategoriesCSV {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
     my %Result = ();
     my @XMLHash;
 
     #get default config...
     my $ConfigRef = $Self->{ConfigObject}->Get('AdminResponsesUploads::TextModuleCategoryDefaults');
-    my %Config    = ();
-    if ( $ConfigRef && ref($ConfigRef) eq 'HASH' ) {
+    my %Config = ();
+    if ($ConfigRef && ref($ConfigRef) eq 'HASH') {
         %Config = %{$ConfigRef};
     }
 
     #init counters...
-    $Result{CountUploaded}     = 0;
+    $Result{CountUploaded} = 0;
     $Result{CountUpdateFailed} = 0;
-    $Result{CountUpdated}      = 0;
+    $Result{CountUpdated} = 0;
     $Result{CountInsertFailed} = 0;
-    $Result{CountAdded}        = 0;
-    $Result{UploadMessage}     = '';
+    $Result{CountAdded} = 0;
+    $Result{UploadMessage} = '';
 
     # check required params...
-    for (qw( Content UserID )) {
-        if ( !defined( $Param{$_} ) ) {
-            $Self->{LogObject}->Log( Priority => 'error', Message => "Need $_!" );
+    for (qw(Content UserID)) {
+        if (!defined($Param{$_})) {
+            $Self->{LogObject}->Log(Priority => 'error', Message => "Need $_!");
             return;
         }
     }
 
     # get array from csv data
     my $CSVArray = $Self->{CSVObject}->CSV2Array(
-        String => $Param{Content},
+        String    => $Param{Content},
         Separator => $Param{CSVSeparator} || ';',
     );
 
     my $HeadLine = shift @{$CSVArray};
 
     my $TMArrIndex = 0;
-    foreach my $Row ( @{$CSVArray} ) {
+    foreach my $Row (@{$CSVArray}) {
         $TMArrIndex++;
         my %UpdateData;
         my $ColumnIdx = 0;
-        foreach my $ColumnContent ( @{$Row} ) {
+        foreach my $ColumnContent (@{$Row}) {
             my $Key = $HeadLine->[$ColumnIdx];
             $UpdateData{$Key} = $ColumnContent;
             $ColumnIdx++;
@@ -808,29 +810,29 @@ sub _ImportTextModuleCategoriesCSV {
 
         #-------------------------------------------------------------------
         # set default values...
-        for my $Key ( keys(%Config) ) {
-            if ( !$UpdateData{$Key} ) {
+        for my $Key (keys(%Config)) {
+            if (!$UpdateData{$Key}) {
                 $UpdateData{$Key} = $Config{$Key};
             }
         }
 
         # check for ID and update...
-        if ( $UpdateData{ID} ) {
+        if ($UpdateData{ID}) {
             my $UpdateResult = 0;
             my $ErrorMessage = "";
-            my $Status       = "";
+            my $Status = "";
 
             my %TextModuleCategory2U = $Self->TextModuleCategoryGet(
                 ID => $UpdateData{ID}
             );
-            if ( !keys(%TextModuleCategory2U) ) {
+            if (!keys(%TextModuleCategory2U)) {
                 $UpdateData{ID} = 0;
                 $ErrorMessage = "Specified text module category ID (" . $UpdateData{ID}
                     . ") does not exist - attempting insert. ";
             }
 
             # update text module category...
-            if ( $UpdateData{ID} && $UpdateData{Name} ) {
+            if ($UpdateData{ID} && $UpdateData{Name}) {
                 $UpdateResult = $Self->TextModuleCategoryUpdate(
                     ID     => $UpdateData{ID},
                     Name   => $UpdateData{Name} || '',
@@ -839,28 +841,24 @@ sub _ImportTextModuleCategoriesCSV {
                 if ($UpdateResult) {
                     $Result{CountUpdated}++;
                     $Status = 'Update OK';
-                }
-                else {
+                } else {
                     $Result{CountUpdateFailed}++;
                     $Status = 'Update Failed';
                 }
-            }
-            elsif ( $UpdateData{Name} ) {
+            } elsif ($UpdateData{Name}) {
                 $UpdateResult = $Self->TextModuleCategoryAdd(
-                    Name => $UpdateData{Name} || '',
+                    Name   => $UpdateData{Name} || '',
                     UserID => $Param{UserID},
                 );
                 $UpdateData{ID} = $UpdateResult;
                 if ($UpdateResult) {
                     $Result{CountAdded}++;
                     $Status = 'Insert OK';
-                }
-                else {
+                } else {
                     $Result{CountInsertFailed}++;
                     $Status = 'Insert Failed';
                 }
-            }
-            else {
+            } else {
                 $ErrorMessage .= "Name not given!";
             }
 
@@ -871,8 +869,7 @@ sub _ImportTextModuleCategoriesCSV {
                     ->[$TMArrIndex]->{ImportResultStatus} = $Status;
                 $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'}
                     ->[$TMArrIndex]->{ImportResultMessage} = $ErrorMessage;
-            }
-            else {
+            } else {
                 $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'}
                     ->[$TMArrIndex]->{ImportResultStatus} = $Status;
                 $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'}
@@ -881,19 +878,18 @@ sub _ImportTextModuleCategoriesCSV {
         }
 
         #no ID => insert/add...
-        elsif ( !$Param{DoNotAdd} ) {
-            my $NewID        = 0;
+        elsif (!$Param{DoNotAdd}) {
+            my $NewID = 0;
             my $ErrorMessage = "";
-            my $Status       = "";
+            my $Status = "";
 
             #insert new textmodule category...
-            if ( $UpdateData{Name} ) {
+            if ($UpdateData{Name}) {
                 $NewID = $Self->TextModuleCategoryAdd(
-                    Name => $UpdateData{Name} || '',
+                    Name   => $UpdateData{Name} || '',
                     UserID => $Param{UserID},
                 );
-            }
-            else {
+            } else {
                 $ErrorMessage = "Name not given!";
             }
 
@@ -908,8 +904,7 @@ sub _ImportTextModuleCategoriesCSV {
                 $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'}
                     ->[$TMArrIndex]->{ImportResultMessage} = $ErrorMessage;
 
-            }
-            else {
+            } else {
                 $Result{CountInsertFailed}++;
                 $Status = 'Insert Failed';
                 $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'}
@@ -938,28 +933,28 @@ import TextModules from XML document.
 =cut
 
 sub _ImportTextModuleCategoriesXML {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
     my %Result = ();
 
     #get default config...
     my $ConfigRef = $Self->{ConfigObject}->Get('AdminResponsesUploads::TextModuleCategoryDefaults');
-    my %Config    = ();
-    if ( $ConfigRef && ref($ConfigRef) eq 'HASH' ) {
+    my %Config = ();
+    if ($ConfigRef && ref($ConfigRef) eq 'HASH') {
         %Config = %{$ConfigRef};
     }
 
     #init counters...
-    $Result{CountUploaded}     = 0;
+    $Result{CountUploaded} = 0;
     $Result{CountUpdateFailed} = 0;
-    $Result{CountUpdated}      = 0;
+    $Result{CountUpdated} = 0;
     $Result{CountInsertFailed} = 0;
-    $Result{CountAdded}        = 0;
-    $Result{UploadMessage}     = '';
+    $Result{CountAdded} = 0;
+    $Result{UploadMessage} = '';
 
     # check required params...
-    for (qw( XMLString UserID )) {
-        if ( !defined( $Param{$_} ) ) {
-            $Self->{LogObject}->Log( Priority => 'error', Message => "Need $_!" );
+    for (qw(XMLString UserID)) {
+        if (!defined($Param{$_})) {
+            $Self->{LogObject}->Log(Priority => 'error', Message => "Need $_!");
             return;
         }
     }
@@ -971,28 +966,28 @@ sub _ImportTextModuleCategoriesXML {
 
     if (
         $XMLHash[1]
-            && ref( $XMLHash[1] ) eq 'HASH'
+            && ref($XMLHash[1]) eq 'HASH'
             && $XMLHash[1]->{'TextModuleCategoryList'}
-            && ref( $XMLHash[1]->{'TextModuleCategoryList'} ) eq 'ARRAY'
+            && ref($XMLHash[1]->{'TextModuleCategoryList'}) eq 'ARRAY'
             && $XMLHash[1]->{'TextModuleCategoryList'}->[1]
-            && ref( $XMLHash[1]->{'TextModuleCategoryList'}->[1] ) eq 'HASH'
+            && ref($XMLHash[1]->{'TextModuleCategoryList'}->[1]) eq 'HASH'
             && $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'}
-            && ref( $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'} ) eq 'ARRAY'
+            && ref($XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'}) eq 'ARRAY'
     ) {
         my $TMArrIndex = 0;
         for my $TMArrRef (
-            @{ $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'} }
+            @{$XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'}}
         ) {
-            next if ( !defined($TMArrRef) || ref($TMArrRef) ne 'HASH' );
+            next if (!defined($TMArrRef) || ref($TMArrRef) ne 'HASH');
 
             $TMArrIndex++;
             my %UpdateData = ();
-            for my $Key ( %{$TMArrRef} ) {
+            for my $Key (%{$TMArrRef}) {
 
                 if (
-                    ref( $TMArrRef->{$Key} ) eq 'ARRAY'
+                    ref($TMArrRef->{$Key}) eq 'ARRAY'
                         && $TMArrRef->{$Key}->[1]
-                        && ref( $TMArrRef->{$Key}->[1] ) eq 'HASH'
+                        && ref($TMArrRef->{$Key}->[1]) eq 'HASH'
                 ) {
                     $UpdateData{$Key} = $TMArrRef->{$Key}->[1]->{Content} || '';
                 }
@@ -1002,29 +997,29 @@ sub _ImportTextModuleCategoriesXML {
 
             #-------------------------------------------------------------------
             # set default values...
-            for my $Key ( keys(%Config) ) {
-                if ( !$UpdateData{$Key} ) {
+            for my $Key (keys(%Config)) {
+                if (!$UpdateData{$Key}) {
                     $UpdateData{$Key} = $Config{$Key};
                 }
             }
 
             # check for ID and update...
-            if ( $UpdateData{ID} ) {
+            if ($UpdateData{ID}) {
                 my $UpdateResult = 0;
                 my $ErrorMessage = "";
-                my $Status       = "";
+                my $Status = "";
 
                 my %TextModuleCategory2U = $Self->TextModuleCategoryGet(
                     ID => $UpdateData{ID}
                 );
-                if ( !keys(%TextModuleCategory2U) ) {
+                if (!keys(%TextModuleCategory2U)) {
                     $UpdateData{ID} = 0;
                     $ErrorMessage = "Specified text module category ID (" . $UpdateData{ID}
                         . ") does not exist - attempting insert. ";
                 }
 
                 # update text module category...
-                if ( $UpdateData{ID} && $UpdateData{Name} ) {
+                if ($UpdateData{ID} && $UpdateData{Name}) {
                     $UpdateResult = $Self->TextModuleCategoryUpdate(
                         ID     => $UpdateData{ID},
                         Name   => $UpdateData{Name} || '',
@@ -1033,28 +1028,24 @@ sub _ImportTextModuleCategoriesXML {
                     if ($UpdateResult) {
                         $Result{CountUpdated}++;
                         $Status = 'Update OK';
-                    }
-                    else {
+                    } else {
                         $Result{CountUpdateFailed}++;
                         $Status = 'Update Failed';
                     }
-                }
-                elsif ( $UpdateData{Name} ) {
+                } elsif ($UpdateData{Name}) {
                     $UpdateResult = $Self->TextModuleCategoryAdd(
-                        Name => $UpdateData{Name} || '',
+                        Name   => $UpdateData{Name} || '',
                         UserID => $Param{UserID},
                     );
                     $UpdateData{ID} = $UpdateResult;
                     if ($UpdateResult) {
                         $Result{CountAdded}++;
                         $Status = 'Insert OK';
-                    }
-                    else {
+                    } else {
                         $Result{CountInsertFailed}++;
                         $Status = 'Insert Failed';
                     }
-                }
-                else {
+                } else {
                     $ErrorMessage .= "Name not given!";
                 }
 
@@ -1065,8 +1056,7 @@ sub _ImportTextModuleCategoriesXML {
                         ->[$TMArrIndex]->{ImportResultStatus} = $Status;
                     $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'}
                         ->[$TMArrIndex]->{ImportResultMessage} = $ErrorMessage;
-                }
-                else {
+                } else {
                     $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'}
                         ->[$TMArrIndex]->{ImportResultStatus} = $Status;
                     $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'}
@@ -1075,19 +1065,18 @@ sub _ImportTextModuleCategoriesXML {
             }
 
             #no ID => insert/add...
-            elsif ( !$Param{DoNotAdd} ) {
-                my $NewID        = 0;
+            elsif (!$Param{DoNotAdd}) {
+                my $NewID = 0;
                 my $ErrorMessage = "";
-                my $Status       = "";
+                my $Status = "";
 
                 #insert new textmodule category...
-                if ( $UpdateData{Name} ) {
+                if ($UpdateData{Name}) {
                     $NewID = $Self->TextModuleCategoryAdd(
-                        Name => $UpdateData{Name} || '',
+                        Name   => $UpdateData{Name} || '',
                         UserID => $Param{UserID},
                     );
-                }
-                else {
+                } else {
                     $ErrorMessage = "Name not given!";
                 }
 
@@ -1102,8 +1091,7 @@ sub _ImportTextModuleCategoriesXML {
                     $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'}
                         ->[$TMArrIndex]->{ImportResultMessage} = $ErrorMessage;
 
-                }
-                else {
+                } else {
                     $Result{CountInsertFailed}++;
                     $Status = 'Insert Failed';
                     $XMLHash[1]->{'TextModuleCategoryList'}->[1]->{'TextModuleCategoryEntry'}
@@ -1144,11 +1132,11 @@ Return all text module-links for a object.
 =cut
 
 sub TextModuleObjectLinkGet {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
     my @Result;
 
     # check required params...
-    if ( !$Param{TextModuleID} && !$Param{ObjectType} && !$Param{ObjectID} ) {
+    if (!$Param{TextModuleID} && !$Param{ObjectType} && !$Param{ObjectID}) {
         $Self->{LogObject}->Log(
             Priority => 'error',
             Message  => 'TextModuleObjectLinkDelete: Need ObjectType and TextModuleID or ObjectID!'
@@ -1158,7 +1146,7 @@ sub TextModuleObjectLinkGet {
 
     # read cache
     for my $Key (qw(TextModuleID ObjectType ObjectID)) {
-        if ( !defined $Param{$Key} ) {
+        if (!defined $Param{$Key}) {
             $Param{$Key} = '';
         }
     }
@@ -1174,23 +1162,22 @@ sub TextModuleObjectLinkGet {
     return $Cache if $Cache;
 
     # select object_link<->text module relation
-    if ( $Param{TextModuleID} ) {
+    if ($Param{TextModuleID}) {
         return if !$Self->{DBObject}->Prepare(
-            SQL =>
+            SQL  =>
                 'SELECT object_id FROM text_module_object_link WHERE object_type = ? AND text_module_id = ? ',
             Bind => [ \$Param{ObjectType}, \$Param{TextModuleID} ],
         );
-    }
-    else {
+    } else {
         return if !$Self->{DBObject}->Prepare(
-            SQL =>
+            SQL  =>
                 'SELECT text_module_id FROM text_module_object_link WHERE object_type = ? AND object_id = ? ',
             Bind => [ \$Param{ObjectType}, \$Param{ObjectID} ],
         );
     }
 
-    while ( my @Data = $Self->{DBObject}->FetchrowArray() ) {
-        push( @Result, $Data[0] );
+    while (my @Data = $Self->{DBObject}->FetchrowArray()) {
+        push(@Result, $Data[0]);
     }
 
     # set cache
@@ -1222,10 +1209,10 @@ Deletes all text module-links for a object.
 =cut
 
 sub TextModuleObjectLinkDelete {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
 
     # check required params...
-    if ( !$Param{TextModuleID} && !$Param{ObjectType} && !$Param{ObjectID} ) {
+    if (!$Param{TextModuleID} && !$Param{ObjectType} && !$Param{ObjectID}) {
         $Self->{LogObject}->Log(
             Priority => 'error',
             Message  => 'TextModuleObjectLinkDelete: Need TextModuleID or ObjectType and ObjectID!'
@@ -1237,24 +1224,22 @@ sub TextModuleObjectLinkDelete {
     $Self->{CacheObject}->CleanUp(Type => 'TextModule');
 
     # delete object_link<->text module relation
-    if ( $Param{TextModuleID} ) {
-        if ( $Param{ObjectType} ) {
+    if ($Param{TextModuleID}) {
+        if ($Param{ObjectType}) {
             return $Self->{DBObject}->Do(
-                SQL =>
+                SQL  =>
                     'DELETE FROM text_module_object_link WHERE object_type = ? AND text_module_id = ?',
                 Bind => [ \$Param{ObjectType}, \$Param{TextModuleID} ],
             );
-        }
-        else {
+        } else {
             return $Self->{DBObject}->Do(
                 SQL  => 'DELETE FROM text_module_object_link WHERE text_module_id = ?',
                 Bind => [ \$Param{TextModuleID} ],
             );
         }
-    }
-    else {
+    } else {
         return $Self->{DBObject}->Do(
-            SQL =>
+            SQL  =>
                 'DELETE FROM text_module_object_link WHERE object_type = ? AND object_id = ?',
             Bind => [ \$Param{ObjectType}, \$Param{ObjectID} ],
         );
@@ -1276,12 +1261,12 @@ available for this object.
 =cut
 
 sub TextModuleObjectLinkCreate {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
 
     # check required params...
     for (qw(TextModuleID ObjectType ObjectID UserID)) {
-        if ( !$Param{$_} ) {
-            $Self->{LogObject}->Log( Priority => 'error', Message => "Need $_!" );
+        if (!$Param{$_}) {
+            $Self->{LogObject}->Log(Priority => 'error', Message => "Need $_!");
             return;
         }
     }
@@ -1312,20 +1297,20 @@ sub TextModuleObjectLinkCreate {
 =cut
 
 sub TextModuleCount {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
     my $SQL = "SELECT count(*) FROM text_module t";
 
-    if ( defined $Param{Type} && $Param{Type} =~ /^UNASSIGNED::(.*?)$/g ) {
+    if (defined $Param{Type} && $Param{Type} =~ /^UNASSIGNED::(.*?)$/g) {
         $SQL
             .= " WHERE NOT EXISTS (SELECT object_id FROM text_module_object_link ol WHERE object_type = '"
             . $1
             . "' AND ol.text_module_id = t.id)";
     }
 
-    return if !$Self->{DBObject}->Prepare( SQL => $SQL );
+    return if !$Self->{DBObject}->Prepare(SQL => $SQL);
 
     my $Count = 0;
-    while ( my @Data = $Self->{DBObject}->FetchrowArray() ) {
+    while (my @Data = $Self->{DBObject}->FetchrowArray()) {
         $Count = $Data[0];
         last;
     }
@@ -1358,14 +1343,14 @@ Returns all text modules depending on given parameters.
 =cut
 
 sub TextModuleList {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
 
     my @ResultArr;
     my %ResultHash;
     my $WHEREClauseExt = '';
 
     # Redirect to other method if feature Ticket::Type is disabled...
-    if ( !$Self->{ConfigObject}->Get('Ticket::Type') ) {
+    if (!$Self->{ConfigObject}->Get('Ticket::Type')) {
         $Param{TicketTypeID} = '';
     }
 
@@ -1375,14 +1360,13 @@ sub TextModuleList {
     foreach my $ParamKey (
         qw{Result CategoryID TextModuleID QueueID TicketTypeID TicketStateID Customer Public Agent Language ValidID Limit Name}
     ) {
-        if ( $Param{$ParamKey} ) {
-            push( @Params, $Param{$ParamKey} );
-        }
-        else {
-            push( @Params, '' );
+        if ($Param{$ParamKey}) {
+            push(@Params, $Param{$ParamKey});
+        } else {
+            push(@Params, '');
         }
     }
-    $CacheKey .= join( '::', @Params );
+    $CacheKey .= join('::', @Params);
     my $Cache = $Self->{CacheObject}->Get(
         Type => 'TextModule',
         Key  => $CacheKey,
@@ -1394,21 +1378,19 @@ sub TextModuleList {
     #    return %{$Cache} if $Cache;
     #}
 
-    if ( exists( $Param{ValidID} ) ) {
+    if (exists($Param{ValidID})) {
         $WHEREClauseExt .= " AND t.valid_id = $Param{ValidID}";
     }
 
-    if ( $Param{Customer} ) {
+    if ($Param{Customer}) {
         $WHEREClauseExt = 'AND t.f_customer = 1';
-    }
-    elsif ( $Param{Public} ) {
+    } elsif ($Param{Public}) {
         $WHEREClauseExt = 'AND t.f_public = 1';
-    }
-    elsif ( $Param{Agent} ) {
+    } elsif ($Param{Agent}) {
         $WHEREClauseExt = 'AND t.f_agent = 1';
     }
 
-    if ( $Param{Name} ) {
+    if ($Param{Name}) {
         my $Name = $Param{Name};
         $Name =~ s/\*/%/g;
         $WHEREClauseExt .= " AND t.name like \'$Name\'";
@@ -1416,28 +1398,27 @@ sub TextModuleList {
 
     # language filter
     for (qw(Language)) {
-        $Param{$_} = $Self->{DBObject}->Quote( $Param{$_} ) || '';
+        $Param{$_} = $Self->{DBObject}->Quote($Param{$_}) || '';
     }
 
-    if ( $Param{Language} ) {
+    if ($Param{Language}) {
         $WHEREClauseExt .= " AND t.language='" . $Param{Language} . "' ";
     }
 
-    if ( $Param{CategoryID} && $Param{CategoryID} !~ /^_/ ) {
+    if ($Param{CategoryID} && $Param{CategoryID} !~ /^_/) {
         $WHEREClauseExt .= " AND EXISTS ( "
             . "   SELECT text_module_id FROM text_module_object_link olt "
             . "      WHERE olt.text_module_id = t.id "
             . "        AND olt.object_type = 'TextModuleCategory' "
             . "        AND olt.object_id = $Param{CategoryID})";
-    }
-    elsif ( defined $Param{CategoryID} && $Param{CategoryID} eq '_UNASSIGNED_' ) {
+    } elsif (defined $Param{CategoryID} && $Param{CategoryID} eq '_UNASSIGNED_') {
         $WHEREClauseExt .= " AND NOT EXISTS ( "
             . "   SELECT text_module_id FROM text_module_object_link olt "
             . "      WHERE olt.text_module_id = t.id "
             . "        AND olt.object_type = 'TextModuleCategory')";
     }
 
-    if ( $Param{QueueID} ) {
+    if ($Param{QueueID}) {
         $WHEREClauseExt .= " AND (EXISTS ( "
             . "   SELECT text_module_id FROM text_module_object_link olt "
             . "      WHERE olt.text_module_id = t.id "
@@ -1449,7 +1430,7 @@ sub TextModuleList {
             . "        AND olt.object_type = 'Queue'))";
 
     }
-    if ( $Param{TicketTypeID} ) {
+    if ($Param{TicketTypeID}) {
         $WHEREClauseExt .= " AND (EXISTS ( "
             . "   SELECT text_module_id FROM text_module_object_link olt "
             . "      WHERE olt.text_module_id = t.id "
@@ -1460,7 +1441,7 @@ sub TextModuleList {
             . "      WHERE olt.text_module_id = t.id "
             . "        AND olt.object_type = 'TicketType'))";
     }
-    if ( $Param{TicketStateID} ) {
+    if ($Param{TicketStateID}) {
         $WHEREClauseExt .= " AND (EXISTS ( "
             . "   SELECT text_module_id FROM text_module_object_link olt "
             . "      WHERE olt.text_module_id = t.id "
@@ -1488,59 +1469,61 @@ sub TextModuleList {
        ORDER BY ktmc.change_time LIMIT 1) as needed_role "
         . "FROM text_module t";
 
-    if ( defined $Param{ValidID} && $Param{ValidID} ) {
+    if (defined $Param{ValidID} && $Param{ValidID}) {
         $SQL .= " WHERE t.valid_id = $Param{ValidID} " . $WHEREClauseExt;
-    }
-    else {
+    } else {
         $SQL .= " WHERE 1=1 " . $WHEREClauseExt;
     }
 
-    if ( defined $Param{Limit} && $Param{Limit} ) {
+    if (defined $Param{Limit} && $Param{Limit}) {
         $SQL .= " LIMIT " . $Param{Limit};
     }
-    return if !$Self->{DBObject}->Prepare( SQL => $SQL );
+    return if !$Self->{DBObject}->Prepare(SQL => $SQL);
 
     my $Count = 0;
-    while ( my @Data = $Self->{DBObject}->FetchrowArray() ) {
-        push( @ResultArr, $Data[0] );
+    while (my @Data = $Self->{DBObject}->FetchrowArray()) {
+        push(@ResultArr, $Data[0]);
 
-        if ( !$Param{Result} ) {
+        if (!$Param{Result}) {
             $ResultHash{ $Data[0] } = $Data[1] . " (" . $Data[7] . ")";
-        }
-        elsif ( $Param{Result} eq 'HASH' ) {
-            $ResultHash{ $Data[0] }->{ID}         = $Data[0];
-            $ResultHash{ $Data[0] }->{Name}       = $Data[1];
-            $ResultHash{ $Data[0] }->{ValidID}    = $Data[2];
-            $ResultHash{ $Data[0] }->{Keywords}   = $Data[3];
-            $ResultHash{ $Data[0] }->{Comment1}   = $Data[4];
-            $ResultHash{ $Data[0] }->{Comment2}   = $Data[5];
+        } elsif ($Param{Result} eq 'HASH') {
+            my @GroupPermissions = [];
+            if ($Data[13]) {
+                @GroupPermissions = @{decode_json($Data[13])};
+            }
+
+            $ResultHash{ $Data[0] }->{ID} = $Data[0];
+            $ResultHash{ $Data[0] }->{Name} = $Data[1];
+            $ResultHash{ $Data[0] }->{ValidID} = $Data[2];
+            $ResultHash{ $Data[0] }->{Keywords} = $Data[3];
+            $ResultHash{ $Data[0] }->{Comment1} = $Data[4];
+            $ResultHash{ $Data[0] }->{Comment2} = $Data[5];
             $ResultHash{ $Data[0] }->{TextModule} = $Data[6];
-            $ResultHash{ $Data[0] }->{Language}   = $Data[7];
-            $ResultHash{ $Data[0] }->{Agent}      = $Data[8];
-            $ResultHash{ $Data[0] }->{Customer}   = $Data[9];
-            $ResultHash{ $Data[0] }->{Public}     = $Data[10];
-            $ResultHash{ $Data[0] }->{Subject}    = $Data[11];
-            $ResultHash{ $Data[0] }->{Category}   = $Data[12];
-            $ResultHash{ $Data[0] }->{NeededGroups}   = $Data[13];
-            $ResultHash{ $Data[0] }->{NeededRole}   = $Data[14];
+            $ResultHash{ $Data[0] }->{Language} = $Data[7];
+            $ResultHash{ $Data[0] }->{Agent} = $Data[8];
+            $ResultHash{ $Data[0] }->{Customer} = $Data[9];
+            $ResultHash{ $Data[0] }->{Public} = $Data[10];
+            $ResultHash{ $Data[0] }->{Subject} = $Data[11];
+            $ResultHash{ $Data[0] }->{Category} = $Data[12];
+            $ResultHash{ $Data[0] }->{NeededGroups} = \@GroupPermissions;
+            $ResultHash{ $Data[0] }->{NeededRole} = $Data[14];
 
             my @FrontendInfoArray;
-            push( @FrontendInfoArray, 'A' ) if ( $ResultHash{ $Data[0] }->{Agent} );
-            push( @FrontendInfoArray, 'C' ) if ( $ResultHash{ $Data[0] }->{Customer} );
-            push( @FrontendInfoArray, 'P' ) if ( $ResultHash{ $Data[0] }->{Public} );
-            $ResultHash{ $Data[0] }->{FrontendInfoStrg} = join( '/', @FrontendInfoArray );
+            push(@FrontendInfoArray, 'A') if ($ResultHash{ $Data[0] }->{Agent});
+            push(@FrontendInfoArray, 'C') if ($ResultHash{ $Data[0] }->{Customer});
+            push(@FrontendInfoArray, 'P') if ($ResultHash{ $Data[0] }->{Public});
+            $ResultHash{ $Data[0] }->{FrontendInfoStrg} = join('/', @FrontendInfoArray);
         }
-        last if ( $Param{Limit} && ++$Count >= $Param{Limit} );
+        last if ($Param{Limit} && ++$Count >= $Param{Limit});
     }
-    if ( defined $Param{Result} && $Param{Result} eq 'ARRAY' ) {
+    if (defined $Param{Result} && $Param{Result} eq 'ARRAY') {
         $Self->{CacheObject}->Set(
             Type  => 'TextModule',
             Key   => $CacheKey,
             Value => \@ResultArr
         );
         return @ResultArr;
-    }
-    else {
+    } else {
         $Self->{CacheObject}->Set(
             Type  => 'TextModule',
             Key   => $CacheKey,
@@ -1572,31 +1555,30 @@ Updates an existing TextModule
 =cut
 
 sub TextModuleUpdate {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
 
     # check required params...
     for (qw(ID Name ValidID TextModule UserID)) {
-        if ( !defined( $Param{$_} ) ) {
-            $Self->{LogObject}->Log( Priority => 'error', Message => "Need $_!" );
+        if (!defined($Param{$_})) {
+            $Self->{LogObject}->Log(Priority => 'error', Message => "Need $_!");
             return;
         }
     }
 
     # default language...
-    if ( !$Param{Language} ) {
+    if (!$Param{Language}) {
         $Param{Language} = $Self->{ConfigObject}->Get('DefaultLanguage') || 'en';
     }
 
     # set frontend display flags...
-    for my $CurrKey (qw(Agent Customer Public )) {
-        if ( $Param{$CurrKey} ) {
+    for my $CurrKey (qw(Agent Customer Public)) {
+        if ($Param{$CurrKey}) {
             $Param{$CurrKey} = 1;
-        }
-        else {
+        } else {
             $Param{$CurrKey} = 0;
         }
     }
-    if ( !$Param{Agent} && !$Param{Customer} && !$Param{Public} ) {
+    if (!$Param{Agent} && !$Param{Customer} && !$Param{Public}) {
         $Param{Agent} = 1;
     }
 
@@ -1620,7 +1602,7 @@ sub TextModuleUpdate {
             \$Param{Name}, \$Param{TextModule}, \$Param{Subject},
             \$Param{Keywords}, \$Param{Language},
             \$Param{Comment1}, \$Param{Comment2}, \$Param{ValidID},
-            \$Param{Agent},    \$Param{Customer}, \$Param{Public},
+            \$Param{Agent}, \$Param{Customer}, \$Param{Public},
             \$Param{UserID}, \$Param{IsVisibleForCustomer},
             \$Param{ID},
         ],
@@ -1633,8 +1615,7 @@ sub TextModuleUpdate {
         $Self->{CacheObject}->CleanUp(Type => 'TextModule');
 
         return $Param{ID};
-    }
-    else {
+    } else {
         $Self->{LogObject}->Log(
             Priority => 'error',
             Message  => "TextModules::DB update of $Param{ID} failed!",
@@ -1655,10 +1636,10 @@ get id or name for text module.
 =cut
 
 sub TextModuleLookup {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
 
     # check required params...
-    if ( !$Param{Name} && !$Param{TextModuleID} ) {
+    if (!$Param{Name} && !$Param{TextModuleID}) {
         $Self->{LogObject}->Log(
             Priority => 'error',
             Message  => "Got no Name or TextModuleID!"
@@ -1668,28 +1649,27 @@ sub TextModuleLookup {
 
     # read cache
     for my $Key (qw(TextModuleID Name)) {
-        if ( !defined $Param{$Key} ) {
+        if (!defined $Param{$Key}) {
             $Param{$Key} = '';
         }
     }
     my $CacheKey = 'TextModuleLookup::' . $Param{TextModuleID} . '::' . $Param{Name};
-    my $Cache    = $Self->{CacheObject}->Get(
+    my $Cache = $Self->{CacheObject}->Get(
         Type => 'TextModule',
         Key  => $CacheKey
     );
     return $Cache if $Cache;
 
     my $Key = $Param{Name} || $Param{TextModuleID};
-    return $Self->{"TextModuleLookup$Key"} if ( $Self->{"TextModuleLookup$Key"} );
+    return $Self->{"TextModuleLookup$Key"} if ($Self->{"TextModuleLookup$Key"});
 
     # get data
-    if ( $Param{Name} ) {
+    if ($Param{Name}) {
         return if !$Self->{DBObject}->Prepare(
             SQL  => 'SELECT id FROM text_module WHERE name = ?',
             Bind => [ \$Param{Name} ],
         );
-    }
-    else {
+    } else {
         return if !$Self->{DBObject}->Prepare(
             SQL  => 'SELECT name FROM text_module WHERE id = ?',
             Bind => [ \$Param{TextModuleID} ],
@@ -1697,13 +1677,13 @@ sub TextModuleLookup {
     }
 
     my $Data;
-    while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+    while (my @Row = $Self->{DBObject}->FetchrowArray()) {
         $Data = $Row[0];
     }
 
     # check if data exists
-    if ( !$Data ) {
-        $Self->{LogObject}->Log( Priority => 'error', Message => "Found no $Key!" );
+    if (!$Data) {
+        $Self->{LogObject}->Log(Priority => 'error', Message => "Found no $Key!");
         return;
     }
 
@@ -1744,15 +1724,14 @@ Export all Textmodules into XML document.
 =cut
 
 sub TextModulesExport {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
     my $Result = "";
 
-    if ( !$Param{Format} || $Param{Format} eq 'XML' ) {
+    if (!$Param{Format} || $Param{Format} eq 'XML') {
         $Result = $Self->_CreateTextModuleExportXML(
             %Param,
         );
-    }
-    elsif ( $Param{Format} eq 'CSV' ) {
+    } elsif ($Param{Format} eq 'CSV') {
         $Result = $Self->_CreateTextModuleExportCSV(
             %Param,
         );
@@ -1772,7 +1751,7 @@ Export all Textmodules into CSV document.
 =cut
 
 sub _CreateTextModuleExportCSV {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
     my $Result = "";
     my @ObjectList;
     my $ObjectListString;
@@ -1782,7 +1761,7 @@ sub _CreateTextModuleExportCSV {
     my @ExportDataArray;
     my @ExportHeadArray;
 
-    for my $CurrHashID ( sort keys %TextModuleData ) {
+    for my $CurrHashID (sort keys %TextModuleData) {
         my @ExportRowArray;
 
         my %TextModule = $Self->TextModuleGet(
@@ -1792,19 +1771,19 @@ sub _CreateTextModuleExportCSV {
         my %CurrTM = ();
 
         # create header
-        if ( !@ExportHeadArray ) {
-            for my $CurrKey ( sort keys(%TextModule) ) {
-                push( @ExportHeadArray, $CurrKey );
+        if (!@ExportHeadArray) {
+            for my $CurrKey (sort keys(%TextModule)) {
+                push(@ExportHeadArray, $CurrKey);
             }
-            push( @ExportHeadArray, 'TextModuleCategoryList' );
-            push( @ExportHeadArray, 'QueueList' );
-            push( @ExportHeadArray, 'TicketTypeList' );
-            push( @ExportHeadArray, 'TicketStateList' );
+            push(@ExportHeadArray, 'TextModuleCategoryList');
+            push(@ExportHeadArray, 'QueueList');
+            push(@ExportHeadArray, 'TicketTypeList');
+            push(@ExportHeadArray, 'TicketStateList');
         }
 
         # add all keys
-        for my $CurrKey ( sort keys(%TextModule) ) {
-            push( @ExportRowArray, $TextModule{$CurrKey} );
+        for my $CurrKey (sort keys(%TextModule)) {
+            push(@ExportRowArray, $TextModule{$CurrKey});
         }
 
         # get all linked categories....
@@ -1814,14 +1793,14 @@ sub _CreateTextModuleExportCSV {
         );
 
         @ObjectList = ();
-        for my $ObjectID ( @{$SelectedObjectRef} ) {
+        for my $ObjectID (@{$SelectedObjectRef}) {
             my $ObjectName = $Self->TextModuleCategoryLookup(
                 ID => $ObjectID
             );
-            push( @ObjectList, $ObjectName );
+            push(@ObjectList, $ObjectName);
         }
-        $ObjectListString = join( '|', @ObjectList );
-        push( @ExportRowArray, $ObjectListString );
+        $ObjectListString = join('|', @ObjectList);
+        push(@ExportRowArray, $ObjectListString);
 
         # get all linked queues....
         $SelectedObjectRef = $Self->TextModuleObjectLinkGet(
@@ -1830,14 +1809,14 @@ sub _CreateTextModuleExportCSV {
         );
 
         @ObjectList = ();
-        for my $ObjectID ( @{$SelectedObjectRef} ) {
+        for my $ObjectID (@{$SelectedObjectRef}) {
             my $ObjectName = $Self->{QueueObject}->QueueLookup(
                 QueueID => $ObjectID
             );
-            push( @ObjectList, $ObjectName );
+            push(@ObjectList, $ObjectName);
         }
-        $ObjectListString = join( '|', @ObjectList );
-        push( @ExportRowArray, $ObjectListString );
+        $ObjectListString = join('|', @ObjectList);
+        push(@ExportRowArray, $ObjectListString);
 
         # get all linked ticket types....
         $SelectedObjectRef = $Self->TextModuleObjectLinkGet(
@@ -1846,14 +1825,14 @@ sub _CreateTextModuleExportCSV {
         );
 
         @ObjectList = ();
-        for my $ObjectID ( @{$SelectedObjectRef} ) {
+        for my $ObjectID (@{$SelectedObjectRef}) {
             my $ObjectName = $Self->{TypeObject}->TypeLookup(
                 TypeID => $ObjectID
             );
-            push( @ObjectList, $ObjectName );
+            push(@ObjectList, $ObjectName);
         }
-        $ObjectListString = join( '|', @ObjectList );
-        push( @ExportRowArray, $ObjectListString );
+        $ObjectListString = join('|', @ObjectList);
+        push(@ExportRowArray, $ObjectListString);
 
         # get all linked ticket states....
         $SelectedObjectRef = $Self->TextModuleObjectLinkGet(
@@ -1862,16 +1841,16 @@ sub _CreateTextModuleExportCSV {
         );
 
         @ObjectList = ();
-        for my $ObjectID ( @{$SelectedObjectRef} ) {
+        for my $ObjectID (@{$SelectedObjectRef}) {
             my $ObjectName = $Self->{StateObject}->StateLookup(
                 StateID => $ObjectID
             );
-            push( @ObjectList, $ObjectName );
+            push(@ObjectList, $ObjectName);
         }
-        $ObjectListString = join( '|', @ObjectList );
-        push( @ExportRowArray, $ObjectListString );
+        $ObjectListString = join('|', @ObjectList);
+        push(@ExportRowArray, $ObjectListString);
 
-        push( @ExportDataArray, \@ExportRowArray );
+        push(@ExportDataArray, \@ExportRowArray);
     }
 
     $Result = $Self->{CSVObject}->Array2CSV(
@@ -1892,21 +1871,21 @@ Export all Textmodules into XML document.
 =cut
 
 sub _CreateTextModuleExportXML {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
     my $Result = "";
 
     my %TextModuleData = $Self->TextModuleList(%Param);
     my @ExportDataArray;
-    push( @ExportDataArray, undef );
+    push(@ExportDataArray, undef);
 
-    for my $CurrHashID ( sort keys %TextModuleData ) {
+    for my $CurrHashID (sort keys %TextModuleData) {
 
         my %TextModule = $Self->TextModuleGet(
             ID => $CurrHashID,
         );
 
         my %CurrTM = ();
-        for my $CurrKey ( keys(%TextModule) ) {
+        for my $CurrKey (keys(%TextModule)) {
             $CurrTM{$CurrKey}->[0] = undef;
             $CurrTM{$CurrKey}->[1]->{Content} = $TextModule{$CurrKey};
         }
@@ -1920,9 +1899,9 @@ sub _CreateTextModuleExportXML {
         my $CategoryIndex = 1;
         $CurrTM{TextModuleCategoryList}->[0] = undef;
 
-        for my $CurrCategoryID ( @{$SelectedCategoryRef} ) {
+        for my $CurrCategoryID (@{$SelectedCategoryRef}) {
             my %Category = ();
-            $Category{ID}      = $CurrCategoryID;
+            $Category{ID} = $CurrCategoryID;
             $Category{Content} = $Self->TextModuleCategoryLookup(
                 ID => $CurrCategoryID
             );
@@ -1937,7 +1916,7 @@ sub _CreateTextModuleExportXML {
             !$CurrTM{TextModuleCategoryList}->[1]->{TextModuleCategory}->[1]
                 || ref $CurrTM{TextModuleCategoryList}->[1]->{TextModuleCategory}->[1] ne 'HASH'
         ) {
-            %{ $CurrTM{TextModuleCategoryList}->[1]->{TextModuleCategory}->[1] } = ();
+            %{$CurrTM{TextModuleCategoryList}->[1]->{TextModuleCategory}->[1]} = ();
         }
 
         # get all linked queues....
@@ -1948,9 +1927,9 @@ sub _CreateTextModuleExportXML {
 
         my $QueueIndex = 1;
         $CurrTM{QueueList}->[0] = undef;
-        for my $CurrQueueID ( @{$SelectedQueueRef} ) {
+        for my $CurrQueueID (@{$SelectedQueueRef}) {
             my %Queue = ();
-            $Queue{ID}      = $CurrQueueID;
+            $Queue{ID} = $CurrQueueID;
             $Queue{Content} = $Self->{QueueObject}->QueueLookup(
                 QueueID => $CurrQueueID
             );
@@ -1963,7 +1942,7 @@ sub _CreateTextModuleExportXML {
             !$CurrTM{QueueList}->[1]->{Queue}->[1]
                 || ref $CurrTM{QueueList}->[1]->{Queue}->[1] ne 'HASH'
         ) {
-            %{ $CurrTM{QueueList}->[1]->{Queue}->[1] } = ();
+            %{$CurrTM{QueueList}->[1]->{Queue}->[1]} = ();
         }
 
         # get all linked ticket types....
@@ -1974,9 +1953,9 @@ sub _CreateTextModuleExportXML {
 
         my $TicketTypeIndex = 1;
         $CurrTM{TicketTypeList}->[0] = undef;
-        for my $CurrTicketTypeID ( @{$SelectedTicketTypeRef} ) {
+        for my $CurrTicketTypeID (@{$SelectedTicketTypeRef}) {
             my %TicketType = ();
-            $TicketType{ID}      = $CurrTicketTypeID;
+            $TicketType{ID} = $CurrTicketTypeID;
             $TicketType{Content} = $Self->{TypeObject}->TypeLookup(
                 TypeID => $CurrTicketTypeID
             );
@@ -1989,7 +1968,7 @@ sub _CreateTextModuleExportXML {
             !$CurrTM{TicketTypeList}->[1]->{TicketType}->[1]
                 || ref $CurrTM{TicketTypeList}->[1]->{TicketType}->[1] ne 'HASH'
         ) {
-            %{ $CurrTM{TicketTypeList}->[1]->{TicketType}->[1] } = ();
+            %{$CurrTM{TicketTypeList}->[1]->{TicketType}->[1]} = ();
         }
 
         # get all linked ticket states....
@@ -2000,9 +1979,9 @@ sub _CreateTextModuleExportXML {
 
         my $TicketStateIndex = 1;
         $CurrTM{TicketStateList}->[0] = undef;
-        for my $CurrTicketStateID ( @{$SelectedTicketStateRef} ) {
+        for my $CurrTicketStateID (@{$SelectedTicketStateRef}) {
             my %TicketState = ();
-            $TicketState{ID}      = $CurrTicketStateID;
+            $TicketState{ID} = $CurrTicketStateID;
             $TicketState{Content} = $Self->{StateObject}->StateLookup(
                 StateID => $CurrTicketStateID
             );
@@ -2015,21 +1994,21 @@ sub _CreateTextModuleExportXML {
             !$CurrTM{TicketStateList}->[1]->{TicketState}->[1]
                 || ref $CurrTM{TicketStateList}->[1]->{TicketState}->[1] ne 'HASH'
         ) {
-            %{ $CurrTM{TicketStateList}->[1]->{TicketState}->[1] } = ();
+            %{$CurrTM{TicketStateList}->[1]->{TicketState}->[1]} = ();
         }
 
         # export *-lists...
-        push( @ExportDataArray, \%CurrTM );
+        push(@ExportDataArray, \%CurrTM);
     }
 
     my @XMLHashArray;
-    push( @XMLHashArray, undef );
+    push(@XMLHashArray, undef);
 
     my %XMLHashTextModule = ();
     $XMLHashTextModule{'TextModuleList'}->[0] = undef;
     $XMLHashTextModule{'TextModuleList'}->[1]->{'TextModuleEntry'} = \@ExportDataArray;
 
-    push( @XMLHashArray, \%XMLHashTextModule );
+    push(@XMLHashArray, \%XMLHashTextModule);
 
     $Result = $Self->{XMLObject}->XMLHash2XML(@XMLHashArray);
 
@@ -2051,16 +2030,15 @@ import TextModules from XML or CSV document.
 =cut
 
 sub TextModulesImport {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
     my $Result;
 
-    if ( !$Param{Format} || $Param{Format} eq 'XML' ) {
+    if (!$Param{Format} || $Param{Format} eq 'XML') {
         $Result = $Self->_ImportTextModuleXML(
             %Param,
             XMLString => $Param{Content},
         );
-    }
-    elsif ( $Param{Format} eq 'CSV' ) {
+    } elsif ($Param{Format} eq 'CSV') {
         $Result = $Self->_ImportTextModuleCSV(
             %Param,
         );
@@ -2083,73 +2061,69 @@ import TextModules from CSV document.
 =cut
 
 sub _ImportTextModuleCSV {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
     my %Result = ();
     my @XMLHash;
 
     #get default config...
     my $ConfigRef = $Self->{ConfigObject}->Get('AdminResponsesUploads::TextModuleDefaults');
-    my %Config    = ();
-    if ( $ConfigRef && ref($ConfigRef) eq 'HASH' ) {
+    my %Config = ();
+    if ($ConfigRef && ref($ConfigRef) eq 'HASH') {
         %Config = %{$ConfigRef};
     }
 
     #init counters...
-    $Result{CountUploaded}     = 0;
+    $Result{CountUploaded} = 0;
     $Result{CountUpdateFailed} = 0;
-    $Result{CountUpdated}      = 0;
+    $Result{CountUpdated} = 0;
     $Result{CountInsertFailed} = 0;
-    $Result{CountAdded}        = 0;
-    $Result{UploadMessage}     = '';
+    $Result{CountAdded} = 0;
+    $Result{UploadMessage} = '';
 
     # check required params...
-    for (qw( Content UserID )) {
-        if ( !defined( $Param{$_} ) ) {
-            $Self->{LogObject}->Log( Priority => 'error', Message => "Need $_!" );
+    for (qw(Content UserID)) {
+        if (!defined($Param{$_})) {
+            $Self->{LogObject}->Log(Priority => 'error', Message => "Need $_!");
             return;
         }
     }
 
     # get array from csv data
     my $CSVArray = $Self->{CSVObject}->CSV2Array(
-        String => $Param{Content},
+        String    => $Param{Content},
         Separator => $Param{CSVSeparator} || ';',
     );
 
     my $HeadLine = shift @{$CSVArray};
 
     my $TMArrIndex = 0;
-    foreach my $Row ( @{$CSVArray} ) {
+    foreach my $Row (@{$CSVArray}) {
         $TMArrIndex++;
         my %UpdateData;
         my $ColumnIdx = 0;
-        foreach my $ColumnContent ( @{$Row} ) {
+        foreach my $ColumnContent (@{$Row}) {
             my $Key = $HeadLine->[$ColumnIdx];
-            if ( $Key !~ /(?:.*?)List$/g ) {
+            if ($Key !~ /(?:.*?)List$/g) {
                 $UpdateData{$Key} = $ColumnContent;
-            }
-            else {
+            } else {
                 my $ObjectType = $1;
-                my $ObjectIdx  = 0;
+                my $ObjectIdx = 0;
                 my $ObjectID;
                 my %ListHash;
-                foreach my $ObjectName ( split( /\|/, $ColumnContent ) ) {
-                    if ( $ObjectType eq 'TextModuleCategory' ) {
+                foreach my $ObjectName (split(/\|/, $ColumnContent)) {
+                    if ($ObjectType eq 'TextModuleCategory') {
                         $ObjectID = $Self->TextModuleCategoryLookup(
                             Name => $ObjectName,
                         );
-                    }
-                    elsif ( $ObjectType eq 'Queue' ) {
+                    } elsif ($ObjectType eq 'Queue') {
                         $ObjectID = $Self->{QueueObject}->QueueLookup(
                             Queue => $ObjectName,
                         );
-                    }
-                    elsif ( $ObjectType eq 'TicketType' ) {
+                    } elsif ($ObjectType eq 'TicketType') {
                         $ObjectID = $Self->{TypeObject}->TypeLookup(
                             Type => $ObjectName,
                         );
-                    }
-                    elsif ( $ObjectType eq 'TicketState' ) {
+                    } elsif ($ObjectType eq 'TicketState') {
                         $ObjectID = $Self->{StateObject}->StateLookup(
                             State => $ObjectName,
                         );
@@ -2168,28 +2142,28 @@ sub _ImportTextModuleCSV {
 
         #-------------------------------------------------------------------
         # set default values...
-        for my $Key ( keys(%Config) ) {
-            if ( !$UpdateData{$Key} ) {
+        for my $Key (keys(%Config)) {
+            if (!$UpdateData{$Key}) {
                 $UpdateData{$Key} = $Config{$Key};
             }
         }
 
         # check for ID and update...
-        if ( $UpdateData{ID} ) {
+        if ($UpdateData{ID}) {
             my $UpdateResult = 0;
             my $ErrorMessage = "";
-            my $Status       = "";
+            my $Status = "";
             my %TextModule2U = $Self->TextModuleGet(
                 ID => $UpdateData{ID}
             );
-            if ( !keys(%TextModule2U) ) {
+            if (!keys(%TextModule2U)) {
                 $UpdateData{ID} = 0;
                 $ErrorMessage = "Specified text module ID (" . $UpdateData{ID}
                     . ") does not exist - attempting insert. ";
             }
 
             # update text module...
-            if ( $UpdateData{ID} && $UpdateData{Name} ) {
+            if ($UpdateData{ID} && $UpdateData{Name}) {
                 $UpdateResult = $Self->TextModuleUpdate(
                     ID         => $UpdateData{ID},
                     ValidID    => $UpdateData{ValidID} || 1,
@@ -2208,24 +2182,22 @@ sub _ImportTextModuleCSV {
                 if ($UpdateResult) {
                     $Result{CountUpdated}++;
                     $Status = 'Update OK';
-                }
-                else {
+                } else {
                     $Result{CountUpdateFailed}++;
                     $Status = 'Update Failed';
                 }
-            }
-            elsif ( $UpdateData{Name} ) {
+            } elsif ($UpdateData{Name}) {
                 $UpdateResult = $Self->TextModuleAdd(
-                    ValidID    => $UpdateData{ValidID}    || 1,
+                    ValidID    => $UpdateData{ValidID} || 1,
                     TextModule => $UpdateData{TextModule} || '',
-                    Keywords   => $UpdateData{Keywords}   || '',
-                    Language   => $UpdateData{Language}   || '',
-                    Name       => $UpdateData{Name}       || '',
-                    Comment1   => $UpdateData{Comment1}   || '',
-                    Comment2   => $UpdateData{Comment2}   || '',
-                    Agent      => $UpdateData{Agent}      || '',
-                    Customer   => $UpdateData{Customer}   || '',
-                    Public     => $UpdateData{Public}     || '',
+                    Keywords   => $UpdateData{Keywords} || '',
+                    Language   => $UpdateData{Language} || '',
+                    Name       => $UpdateData{Name} || '',
+                    Comment1   => $UpdateData{Comment1} || '',
+                    Comment2   => $UpdateData{Comment2} || '',
+                    Agent      => $UpdateData{Agent} || '',
+                    Customer   => $UpdateData{Customer} || '',
+                    Public     => $UpdateData{Public} || '',
                     Subject    => $UpdateData{Subject},
                     UserID     => $Param{UserID},
                 );
@@ -2233,13 +2205,11 @@ sub _ImportTextModuleCSV {
                 if ($UpdateResult) {
                     $Result{CountAdded}++;
                     $Status = 'Insert OK';
-                }
-                else {
+                } else {
                     $Result{CountInsertFailed}++;
                     $Status = 'Insert Failed';
                 }
-            }
-            else {
+            } else {
                 $ErrorMessage .= "Name not given!";
             }
 
@@ -2254,8 +2224,7 @@ sub _ImportTextModuleCSV {
                     ->[$TMArrIndex]->{ImportResultStatus} = $Status;
                 $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'}
                     ->[$TMArrIndex]->{ImportResultMessage} = $ErrorMessage;
-            }
-            else {
+            } else {
                 $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'}
                     ->[$TMArrIndex]->{ImportResultStatus} = $Status;
                 $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'}
@@ -2264,29 +2233,28 @@ sub _ImportTextModuleCSV {
         }
 
         #no ID => insert/add...
-        elsif ( !$Param{DoNotAdd} ) {
-            my $NewID        = 0;
+        elsif (!$Param{DoNotAdd}) {
+            my $NewID = 0;
             my $ErrorMessage = "";
-            my $Status       = "";
+            my $Status = "";
 
             #insert new textmodule...
-            if ( $UpdateData{Name} ) {
+            if ($UpdateData{Name}) {
                 $NewID = $Self->TextModuleAdd(
-                    ValidID    => $UpdateData{ValidID}    || 1,
+                    ValidID    => $UpdateData{ValidID} || 1,
                     TextModule => $UpdateData{TextModule} || '',
-                    Keywords   => $UpdateData{Keywords}   || '',
-                    Language   => $UpdateData{Language}   || '',
-                    Name       => $UpdateData{Name}       || '',
-                    Comment1   => $UpdateData{Comment1}   || '',
-                    Comment2   => $UpdateData{Comment2}   || '',
-                    Agent      => $UpdateData{Agent}      || '',
-                    Customer   => $UpdateData{Customer}   || '',
-                    Public     => $UpdateData{Public}     || '',
+                    Keywords   => $UpdateData{Keywords} || '',
+                    Language   => $UpdateData{Language} || '',
+                    Name       => $UpdateData{Name} || '',
+                    Comment1   => $UpdateData{Comment1} || '',
+                    Comment2   => $UpdateData{Comment2} || '',
+                    Agent      => $UpdateData{Agent} || '',
+                    Customer   => $UpdateData{Customer} || '',
+                    Public     => $UpdateData{Public} || '',
                     Subject    => $UpdateData{Subject},
                     UserID     => $Param{UserID},
                 );
-            }
-            else {
+            } else {
                 $ErrorMessage = "Name not given!";
             }
 
@@ -2306,8 +2274,7 @@ sub _ImportTextModuleCSV {
                 $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'}
                     ->[$TMArrIndex]->{ImportResultMessage} = $ErrorMessage;
 
-            }
-            else {
+            } else {
                 $Result{CountInsertFailed}++;
                 $Status = 'Insert Failed';
                 $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'}
@@ -2336,28 +2303,28 @@ import TextModules from XML document.
 =cut
 
 sub _ImportTextModuleXML {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
     my %Result = ();
 
     #get default config...
     my $ConfigRef = $Self->{ConfigObject}->Get('AdminResponsesUploads::TextModuleDefaults');
-    my %Config    = ();
-    if ( $ConfigRef && ref($ConfigRef) eq 'HASH' ) {
+    my %Config = ();
+    if ($ConfigRef && ref($ConfigRef) eq 'HASH') {
         %Config = %{$ConfigRef};
     }
 
     #init counters...
-    $Result{CountUploaded}     = 0;
+    $Result{CountUploaded} = 0;
     $Result{CountUpdateFailed} = 0;
-    $Result{CountUpdated}      = 0;
+    $Result{CountUpdated} = 0;
     $Result{CountInsertFailed} = 0;
-    $Result{CountAdded}        = 0;
-    $Result{UploadMessage}     = '';
+    $Result{CountAdded} = 0;
+    $Result{UploadMessage} = '';
 
     # check required params...
-    for (qw( XMLString UserID )) {
-        if ( !defined( $Param{$_} ) ) {
-            $Self->{LogObject}->Log( Priority => 'error', Message => "Need $_!" );
+    for (qw(XMLString UserID)) {
+        if (!defined($Param{$_})) {
+            $Self->{LogObject}->Log(Priority => 'error', Message => "Need $_!");
             return;
         }
     }
@@ -2369,25 +2336,25 @@ sub _ImportTextModuleXML {
 
     if (
         $XMLHash[1]
-            && ref( $XMLHash[1] ) eq 'HASH'
+            && ref($XMLHash[1]) eq 'HASH'
             && $XMLHash[1]->{'TextModuleList'}
-            && ref( $XMLHash[1]->{'TextModuleList'} ) eq 'ARRAY'
+            && ref($XMLHash[1]->{'TextModuleList'}) eq 'ARRAY'
             && $XMLHash[1]->{'TextModuleList'}->[1]
-            && ref( $XMLHash[1]->{'TextModuleList'}->[1] ) eq 'HASH'
+            && ref($XMLHash[1]->{'TextModuleList'}->[1]) eq 'HASH'
             && $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'}
-            && ref( $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'} ) eq 'ARRAY'
+            && ref($XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'}) eq 'ARRAY'
     ) {
         my $TMArrIndex = 0;
-        for my $TMArrRef ( @{ $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'} } ) {
-            next if ( !defined($TMArrRef) || ref($TMArrRef) ne 'HASH' );
+        for my $TMArrRef (@{$XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'}}) {
+            next if (!defined($TMArrRef) || ref($TMArrRef) ne 'HASH');
 
             $TMArrIndex++;
             my %UpdateData = ();
-            for my $Key ( %{$TMArrRef} ) {
+            for my $Key (%{$TMArrRef}) {
                 if (
-                    ref( $TMArrRef->{$Key} ) eq 'ARRAY'
+                    ref($TMArrRef->{$Key}) eq 'ARRAY'
                         && $TMArrRef->{$Key}->[1]
-                        && ref( $TMArrRef->{$Key}->[1] ) eq 'HASH'
+                        && ref($TMArrRef->{$Key}->[1]) eq 'HASH'
                 ) {
                     $UpdateData{$Key} = $TMArrRef->{$Key}->[1]->{Content} || '';
                 }
@@ -2397,18 +2364,18 @@ sub _ImportTextModuleXML {
                 my %ObjectList;
 
                 if (
-                    ref( $TMArrRef->{ $ObjectType . 'List' } ) eq 'ARRAY'
+                    ref($TMArrRef->{ $ObjectType . 'List' }) eq 'ARRAY'
                         && $TMArrRef->{ $ObjectType . 'List' }->[1]
-                        && ref( $TMArrRef->{ $ObjectType . 'List' }->[1] ) eq 'HASH'
+                        && ref($TMArrRef->{ $ObjectType . 'List' }->[1]) eq 'HASH'
                         && $TMArrRef->{ $ObjectType . 'List' }->[1]->{$ObjectType}
-                        && ref( $TMArrRef->{ $ObjectType . 'List' }->[1]->{$ObjectType} ) eq 'ARRAY'
+                        && ref($TMArrRef->{ $ObjectType . 'List' }->[1]->{$ObjectType}) eq 'ARRAY'
                 ) {
                     my $Index = 1;
                     for my $SubContent (
-                        @{ $TMArrRef->{ $ObjectType . 'List' }->[1]->{$ObjectType} }
+                        @{$TMArrRef->{ $ObjectType . 'List' }->[1]->{$ObjectType}}
                     ) {
-                        next if ( !defined($SubContent) );
-                        $ObjectList{$Index}->{ID}   = $SubContent->{ID}      || '0';
+                        next if (!defined($SubContent));
+                        $ObjectList{$Index}->{ID} = $SubContent->{ID} || '0';
                         $ObjectList{$Index}->{Name} = $SubContent->{Content} || '';
                         $Index++;
                     }
@@ -2420,29 +2387,29 @@ sub _ImportTextModuleXML {
 
             #-------------------------------------------------------------------
             # set default values...
-            for my $Key ( keys(%Config) ) {
-                if ( !$UpdateData{$Key} ) {
+            for my $Key (keys(%Config)) {
+                if (!$UpdateData{$Key}) {
                     $UpdateData{$Key} = $Config{$Key};
                 }
             }
 
             # check for ID and update...
-            if ( $UpdateData{ID} ) {
+            if ($UpdateData{ID}) {
                 my $UpdateResult = 0;
                 my $ErrorMessage = "";
-                my $Status       = "";
+                my $Status = "";
 
                 my %TextModule2U = $Self->TextModuleGet(
                     ID => $UpdateData{ID}
                 );
-                if ( !keys(%TextModule2U) ) {
+                if (!keys(%TextModule2U)) {
                     $UpdateData{ID} = 0;
                     $ErrorMessage = "Specified text module ID (" . $UpdateData{ID}
                         . ") does not exist - attempting insert. ";
                 }
 
                 # update text module...
-                if ( $UpdateData{ID} && $UpdateData{Name} ) {
+                if ($UpdateData{ID} && $UpdateData{Name}) {
                     $UpdateResult = $Self->TextModuleUpdate(
                         ID         => $UpdateData{ID},
                         ValidID    => $UpdateData{ValidID} || 1,
@@ -2457,44 +2424,40 @@ sub _ImportTextModuleXML {
                         Public     => $UpdateData{Public} || '',
                         Subject    => $UpdateData{Subject},
 
-                        UserID => $Param{UserID},
+                        UserID     => $Param{UserID},
                     );
                     if ($UpdateResult) {
                         $Result{CountUpdated}++;
                         $Status = 'Update OK';
-                    }
-                    else {
+                    } else {
                         $Result{CountUpdateFailed}++;
                         $Status = 'Update Failed';
                     }
-                }
-                elsif ( $UpdateData{Name} ) {
+                } elsif ($UpdateData{Name}) {
                     $UpdateResult = $Self->TextModuleAdd(
-                        ValidID    => $UpdateData{ValidID}    || 1,
+                        ValidID    => $UpdateData{ValidID} || 1,
                         TextModule => $UpdateData{TextModule} || '',
-                        Keywords   => $UpdateData{Keywords}   || '',
-                        Language   => $UpdateData{Language}   || '',
-                        Name       => $UpdateData{Name}       || '',
-                        Comment1   => $UpdateData{Comment1}   || '',
-                        Comment2   => $UpdateData{Comment2}   || '',
-                        Agent      => $UpdateData{Agent}      || '',
-                        Customer   => $UpdateData{Customer}   || '',
-                        Public     => $UpdateData{Public}     || '',
+                        Keywords   => $UpdateData{Keywords} || '',
+                        Language   => $UpdateData{Language} || '',
+                        Name       => $UpdateData{Name} || '',
+                        Comment1   => $UpdateData{Comment1} || '',
+                        Comment2   => $UpdateData{Comment2} || '',
+                        Agent      => $UpdateData{Agent} || '',
+                        Customer   => $UpdateData{Customer} || '',
+                        Public     => $UpdateData{Public} || '',
                         Subject    => $UpdateData{Subject},
 
-                        UserID => $Param{UserID},
+                        UserID     => $Param{UserID},
                     );
                     $UpdateData{ID} = $UpdateResult;
                     if ($UpdateResult) {
                         $Result{CountAdded}++;
                         $Status = 'Insert OK';
-                    }
-                    else {
+                    } else {
                         $Result{CountInsertFailed}++;
                         $Status = 'Insert Failed';
                     }
-                }
-                else {
+                } else {
                     $ErrorMessage .= "Name not given!";
                 }
 
@@ -2509,8 +2472,7 @@ sub _ImportTextModuleXML {
                         ->[$TMArrIndex]->{ImportResultStatus} = $Status;
                     $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'}
                         ->[$TMArrIndex]->{ImportResultMessage} = $ErrorMessage;
-                }
-                else {
+                } else {
                     $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'}
                         ->[$TMArrIndex]->{ImportResultStatus} = $Status;
                     $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'}
@@ -2519,30 +2481,29 @@ sub _ImportTextModuleXML {
             }
 
             #no ID => insert/add...
-            elsif ( !$Param{DoNotAdd} ) {
-                my $NewID        = 0;
+            elsif (!$Param{DoNotAdd}) {
+                my $NewID = 0;
                 my $ErrorMessage = "";
-                my $Status       = "";
+                my $Status = "";
 
                 #insert new textmodule...
-                if ( $UpdateData{Name} ) {
+                if ($UpdateData{Name}) {
                     $NewID = $Self->TextModuleAdd(
-                        ValidID    => $UpdateData{ValidID}    || 1,
+                        ValidID    => $UpdateData{ValidID} || 1,
                         TextModule => $UpdateData{TextModule} || '',
-                        Keywords   => $UpdateData{Keywords}   || '',
-                        Language   => $UpdateData{Language}   || '',
-                        Name       => $UpdateData{Name}       || '',
-                        Comment1   => $UpdateData{Comment1}   || '',
-                        Comment2   => $UpdateData{Comment2}   || '',
-                        Agent      => $UpdateData{Agent}      || '',
-                        Customer   => $UpdateData{Customer}   || '',
-                        Public     => $UpdateData{Public}     || '',
+                        Keywords   => $UpdateData{Keywords} || '',
+                        Language   => $UpdateData{Language} || '',
+                        Name       => $UpdateData{Name} || '',
+                        Comment1   => $UpdateData{Comment1} || '',
+                        Comment2   => $UpdateData{Comment2} || '',
+                        Agent      => $UpdateData{Agent} || '',
+                        Customer   => $UpdateData{Customer} || '',
+                        Public     => $UpdateData{Public} || '',
                         Subject    => $UpdateData{Subject},
 
-                        UserID => $Param{UserID},
+                        UserID     => $Param{UserID},
                     );
-                }
-                else {
+                } else {
                     $ErrorMessage = "Name not given!";
                 }
 
@@ -2562,8 +2523,7 @@ sub _ImportTextModuleXML {
                     $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'}
                         ->[$TMArrIndex]->{ImportResultMessage} = $ErrorMessage;
 
-                }
-                else {
+                } else {
                     $Result{CountInsertFailed}++;
                     $Status = 'Insert Failed';
                     $XMLHash[1]->{'TextModuleList'}->[1]->{'TextModuleEntry'}
@@ -2581,23 +2541,23 @@ sub _ImportTextModuleXML {
 }
 
 sub _ImportObjectLinks {
-    my ( $Self, %Param ) = @_;
+    my ($Self, %Param) = @_;
     my $ErrorMessage = '';
 
     # check required params...
-    for (qw( UpdateData UserID )) {
-        if ( !defined( $Param{$_} ) ) {
-            $Self->{LogObject}->Log( Priority => 'error', Message => "Need $_!" );
+    for (qw(UpdateData UserID)) {
+        if (!defined($Param{$_})) {
+            $Self->{LogObject}->Log(Priority => 'error', Message => "Need $_!");
             return;
         }
     }
 
     foreach my $ObjectType (qw(TextModuleCategory Queue TicketType TicketState)) {
 
-        next if ( ref $Param{UpdateData}->{ $ObjectType . 'List' } ne 'HASH' );
+        next if (ref $Param{UpdateData}->{ $ObjectType . 'List' } ne 'HASH');
 
         # delete existing object links...
-        if ( scalar keys %{ $Param{UpdateData}->{ $ObjectType . 'List' } } ) {
+        if (scalar keys %{$Param{UpdateData}->{ $ObjectType . 'List' }}) {
             $Self->TextModuleObjectLinkDelete(
                 TextModuleID => $Param{UpdateData}->{ID},
                 ObjectType   => $ObjectType,
@@ -2606,45 +2566,40 @@ sub _ImportObjectLinks {
         }
 
         # update object links...
-        for my $CurrIndex ( keys %{ $Param{UpdateData}->{ $ObjectType . 'List' } } ) {
+        for my $CurrIndex (keys %{$Param{UpdateData}->{ $ObjectType . 'List' }}) {
 
             my $GivenName = $Param{UpdateData}->{ $ObjectType . 'List' }->{$CurrIndex}->{Name}
                 || '';
             my $ObjectName = $GivenName;
-            my $GivenID    = $Param{UpdateData}->{ $ObjectType . 'List' }->{$CurrIndex}->{ID} || 0;
-            my $ObjectID   = $GivenID;
+            my $GivenID = $Param{UpdateData}->{ $ObjectType . 'List' }->{$CurrIndex}->{ID} || 0;
+            my $ObjectID = $GivenID;
 
-            if ( !$GivenID && $GivenName ) {
-                if ( $ObjectType eq 'TextModuleCategory' ) {
+            if (!$GivenID && $GivenName) {
+                if ($ObjectType eq 'TextModuleCategory') {
                     $ObjectID = $Self->TextModuleCategoryLookup(
                         Name => $GivenName,
                     );
-                }
-                elsif ( $ObjectType eq 'Queue' ) {
+                } elsif ($ObjectType eq 'Queue') {
                     $ObjectID = $Self->{QueueObject}->QueueLookup(
                         Queue => $GivenName,
                     );
-                }
-                elsif ( $ObjectType eq 'TicketType' ) {
+                } elsif ($ObjectType eq 'TicketType') {
                     $ObjectID = $Self->{TypeObject}->TypeLookup(
                         Type => $GivenName,
                     );
-                }
-                elsif ( $ObjectType eq 'TicketState' ) {
+                } elsif ($ObjectType eq 'TicketState') {
                     $ObjectID = $Self->{StateObject}->StateLookup(
                         State => $GivenName,
                     );
                 }
-            }
-            elsif ( !$GivenID && !$GivenName ) {
+            } elsif (!$GivenID && !$GivenName) {
                 $ErrorMessage .= " No link created ($ObjectType): no name or ID given.";
             }
 
-            if ( !$ObjectID ) {
+            if (!$ObjectID) {
                 $ErrorMessage
                     .= " No link created ($ObjectType): found no ID for given name ($GivenName).";
-            }
-            else {
+            } else {
                 $Self->TextModuleObjectLinkCreate(
                     TextModuleID => $Param{UpdateData}->{ID},
                     ObjectID     => $ObjectID,
