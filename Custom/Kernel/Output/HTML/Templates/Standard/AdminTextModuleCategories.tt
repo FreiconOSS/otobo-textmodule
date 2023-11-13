@@ -172,7 +172,7 @@
                             <p>[% Translate("This field is required and its content can not be longer than %s characters.", "80") | html %]</p>
                         </div>
                         </p>
-                        <label class="" for="ParentCategory">[% Translate("Sub-service of") | html %]:</label>
+                        <label class="" for="ParentCategory">[% Translate("Subcategory of") | html %]:</label>
                         <p class="Value">
                         [% Data.ParentCategoryStrg %]
                         </p>

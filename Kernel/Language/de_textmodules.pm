@@ -23,6 +23,7 @@ sub Data {
         $Self->{Translation}->{'Text module category'} = 'Textbaustein Kategorie',
         $Self->{Translation}->{'Collapse All'} = 'Alles Einklappen',
         $Self->{Translation}->{'Expand All'} = 'Alles Ausklappen',
+        $Self->{Translation}->{'Subcategory of'} = 'Unterkategorie von';
 
         return;
 }
