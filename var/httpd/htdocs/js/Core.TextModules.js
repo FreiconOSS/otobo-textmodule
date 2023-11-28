@@ -647,8 +647,8 @@ Core.Addon.TextModules = (function (TargetNS) {
                                 themes: {
                                     name: 'InputField',
                                     variant: 'Tree',
-                                    icons: false,
-                                    dots: false,
+                                    icons: true,
+                                    dots: true,
                                 }
                             },
                             types: {
