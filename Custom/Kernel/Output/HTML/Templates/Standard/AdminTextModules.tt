@@ -323,7 +323,7 @@
                 name: 'InputField',
                 variant: 'Tree',
                 icons: true,
-                dots: false,
+                dots: true,
             }
         },
         types : {
