@@ -131,11 +131,11 @@ sub _Widget {
         }
 
         if (!$HasPermission) {
-            if (!scalar(@TreeParts) == 1 && $TreeParts[0] ne $NoCategoryName){
+            if ($TreeParts[0] ne $NoCategoryName){
                 next LOOP;
             }
         }
-        
+
         if ($category->{NeededRole}) {
             foreach (keys %RoleList) {
                 if ($category->{NeededRole} eq $RoleList{$_}) {
