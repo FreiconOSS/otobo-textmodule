@@ -81,7 +81,7 @@ sub _Widget {
         $CustomerUser = $Param{CustomerUserID};
     }
 
-    my %HashOrArrayRef = $TextModuleObject->TextModuleList(
+    my %TextModules = $TextModuleObject->TextModuleList(
         %Ticket,
         Result         => 'HASH',
         UserLastname   => $Self->{UserLastname},
@@ -97,6 +97,7 @@ sub _Widget {
     );
 
     my $categoryTree = {};
+    my $NoCategoryName = 'Ohne Kategorie';
 
     # Group permissions for user
     my %MemberOf = $GroupObject->PermissionUserGroupGet(
@@ -109,16 +110,17 @@ sub _Widget {
     );
 
     LOOP:
-    foreach my $categoryKey (keys %HashOrArrayRef) {
-        my $category = ($HashOrArrayRef{$categoryKey} || '');
-        my @p = split /::/, ($category->{Category} || 'Ohne Kategorie');
+    foreach my $categoryKey (keys %TextModules) {
+        my $category = ($TextModules{$categoryKey} || '');
+        my @TreeParts = split /::/, ($category->{Category} || $NoCategoryName);
 
         # if ($category->{NeededGroups} && !exists($MemberOf{$category->{NeededGroups}})) {
         #     next LOOP;
         # }
 
         # User with this GroupIDs can use this text module category
-        my @PossibleGroupIDs = @{$HashOrArrayRef{$categoryKey}->{NeededGroups}};
+        my @PossibleGroupIDs = @{$TextModules{$categoryKey}->{NeededGroups}};
+
 
         # If no permissions given. All users have permission
         my $HasPermission = scalar(@PossibleGroupIDs) == 0 ? 1 : 0;
@@ -129,11 +131,11 @@ sub _Widget {
         }
 
         if (!$HasPermission) {
-            next LOOP;
+            if (!scalar(@TreeParts) == 1 && $TreeParts[0] ne $NoCategoryName){
+                next LOOP;
+            }
         }
-
-
-
+        
         if ($category->{NeededRole}) {
             foreach (keys %RoleList) {
                 if ($category->{NeededRole} eq $RoleList{$_}) {
@@ -146,7 +148,7 @@ sub _Widget {
 
         my $currentTree = $categoryTree;
 
-        foreach my $cp (@p) {
+        foreach my $cp (@TreeParts) {
             if ($currentTree->{$cp}) {
                 $currentTree = $currentTree->{$cp};
             } else {
@@ -175,11 +177,12 @@ sub _Widget {
             <div class="Content" id="TextModulesTreeViewContainer"><ul class="TextModulesTreeView">';
     my @keys = keys %{$categoryTree};
     my @sortedKeys = sort @keys;
+    
     foreach my $treeNode (@sortedKeys) {
         $out .= _buildTextModuleNode($categoryTree->{$treeNode}, $treeNode, %MemberOf);
     }
     $out .= '</ul></div>';
-
+    
     return $LayoutObject->Attachment(
         ContentType => 'text/plain; charset=' . $LayoutObject->{Charset},
         Content     => $out || "<br/>",
@@ -241,6 +244,9 @@ sub _Get {
 
 sub _buildTextModuleNode {
     my ($dataArray, $key, %MemberOf) = @_;
+    
+    @{$dataArray->{'_leafs'}} = sort { alphanumSort($a->{'Name'}, $b->{'Name'}) } @{$dataArray->{'_leafs'}};
+    
     my $out = '<li data-jstree=\'{"icon":"fa fa-folder-open-o", "opened":false,"selected":true}\'>' . $key . '<ul>';
     my @keys = keys %{$dataArray};
     my @sortedKeys = sort @keys;
@@ -258,5 +264,24 @@ sub _buildTextModuleNode {
     $out .= "</ul>\n";
     return $out;
 }
+
+sub alphanumSort {
+    my ($a, $b) = @_;
+    my @a = ($a =~ /(\d+|\D+)/g);
+    my @b = ($b =~ /(\d+|\D+)/g);
+
+    while (@a && @b) {
+        my $a_part = shift @a;
+        my $b_part = shift @b;
+
+        if ($a_part =~ /\d/ && $b_part =~ /\d/) {
+            return $a_part <=> $b_part if $a_part != $b_part;
+        } else {
+            return $a_part cmp $b_part if $a_part ne $b_part;
+        }
+    }
+    return @a <=> @b;
+}
+
 
 1;
