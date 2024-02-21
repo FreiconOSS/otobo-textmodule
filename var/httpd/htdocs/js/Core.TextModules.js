@@ -586,6 +586,9 @@ Core.Addon.TextModules = (function (TargetNS) {
                     $('input#IsVisibleForCustomer').prop("checked", resp.IsVisibleForCustomer === '1' || resp.IsVisibleForCustomer === 1);
                 }
 
+                if (resp.TimeUnits && resp.TimeUnits !== '') {
+                    $('#TimeUnits').val(resp.TimeUnits);
+                }
 
                 setTimeout(function () {
                     window.TextModules_skip = false;

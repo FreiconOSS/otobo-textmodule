@@ -58,7 +58,7 @@ sub Run {
         qw(ID Name Keywords Comment Comment1 Comment2 Subject TextModule
             Language LanguageEdit ValidID FormID Limit Show Download
             XMLUploadDoNotAdd XMLResultFileID XMLResultFileName
-            SelectedCategoryID DownloadType UploadType IsVisibleForCustomer)
+            SelectedCategoryID DownloadType UploadType IsVisibleForCustomer TimeUnits)
     ) {
         $GetParam{$_} = $ParamObject->GetParam( Param => $_ ) || '';
     }
@@ -195,6 +195,7 @@ sub Run {
             $Param{AgentChecked}    = 'checked="checked"' if $TextModuleData{Agent};
             $Param{CustomerChecked} = 'checked="checked"' if $TextModuleData{Customer};
             $Param{PublicChecked}   = 'checked="checked"' if $TextModuleData{Public};
+            $Param{TimeUnits} =$TextModuleData{TimeUnits};
 
             $Param{ValidOption} = $LayoutObject->BuildSelection(
                 Data       => \%ValidHash,

@@ -80,5 +80,8 @@
             <ColumnAdd Name="is_visible_for_customer" Required="false" Type="INTEGER" Default="0"/>
             <ColumnAdd Name="role_permission" Required="false" Type="VARCHAR" Size="2000"/>
         </TableAlter>
+        <TableAlter Name="text_module" Version="10.1.5.12">
+            <ColumnAdd Name="time_units" Required="true" Type="VARCHAR" Size="25"/>
+        </TableAlter>
     </DatabaseUpgrade>
 </otrs_package>

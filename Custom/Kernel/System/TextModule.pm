@@ -148,7 +148,7 @@ sub TextModuleAdd {
     my $SQL = "INSERT INTO text_module "
         . "(name, valid_id, keywords, comment1, comment2, text, subject, language, "
         . "f_agent, f_customer, f_public, "
-        . "create_time, create_by, change_time, change_by, is_visible_for_customer) "
+        . "create_time, create_by, change_time, change_by, is_visible_for_customer, time_units) "
         . "VALUES "
         . "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,"
         . " current_timestamp, ?, current_timestamp, ?, ?) ";
@@ -161,7 +161,7 @@ sub TextModuleAdd {
             \$Param{Comment2}, \$Param{TextModule}, \$Param{Subject},
             \$Param{Language},
             \$Param{Agent}, \$Param{Customer}, \$Param{Public},
-            \$Param{UserID}, \$Param{UserID}, \$Param{IsVisibleForCustomer}
+            \$Param{UserID}, \$Param{UserID}, \$Param{IsVisibleForCustomer}, \$Param{TimeUnits}
         ],
     );
 
@@ -225,7 +225,7 @@ sub TextModuleGet {
     # sql
     my $SQL
         = 'SELECT name, valid_id, keywords, comment1, comment2, text, '
-        . 'language, f_agent, f_customer, f_public, subject, is_visible_for_customer '
+        . 'language, f_agent, f_customer, f_public, subject, is_visible_for_customer, time_units '
         . 'FROM text_module '
         . 'WHERE id = ' . $Param{ID};
 
@@ -245,8 +245,8 @@ sub TextModuleGet {
             Customer             => $Data[8],
             Public               => $Data[9],
             Subject              => $Data[10],
-
             IsVisibleForCustomer => $Data[11],
+            TimeUnits            => $Data[12],
         );
 
         # set cache
@@ -1592,7 +1592,7 @@ sub TextModuleUpdate {
         . " comment1 = ?, comment2 = ?, valid_id = ?, "
         . " f_agent = ?, f_customer = ?, f_public = ?, "
         . " change_time = current_timestamp, change_by = ? "
-        . ", is_visible_for_customer = ?"
+        . ", is_visible_for_customer = ?, time_units = ?"
         . "WHERE id = ?";
 
     # do the db insert...
@@ -1603,7 +1603,7 @@ sub TextModuleUpdate {
             \$Param{Keywords}, \$Param{Language},
             \$Param{Comment1}, \$Param{Comment2}, \$Param{ValidID},
             \$Param{Agent}, \$Param{Customer}, \$Param{Public},
-            \$Param{UserID}, \$Param{IsVisibleForCustomer},
+            \$Param{UserID}, \$Param{IsVisibleForCustomer}, \$Param{TimeUnits},
             \$Param{ID},
         ],
     );
