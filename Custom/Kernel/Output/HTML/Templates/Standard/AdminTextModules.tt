@@ -225,6 +225,16 @@
                         </p>
 
                         <div class="Clear"></div>
+
+                        <label for="TimeUnits">[% Translate("Time units") | html %] [% Translate(Config("Ticket::Frontend::TimeUnits")) | html %]:</label>
+                        <div class="Field">
+                            <input type="text" class="W50pc Validate_TimeUnits [% Data.TimeUnitsRequired | html %] [% Data.TimeUnitsInvalid | html %]" name="TimeUnits" id="TimeUnits" value="[% Data.TimeUnits | html %]" />
+                            <div id="TimeUnitsError" class="TooltipErrorMessage"><p>[% Translate("Invalid time!") | html %]</p></div>
+                            <div id="TimeUnitsServerError" class="TooltipErrorMessage"><p>[% Translate("This field is required.") | html %]</p></div>
+                        </div>
+
+                        <div class="Clear"></div>
+
                         <label for="IsVisibleForCustomer">[% Translate("Is visible for customer") | html %]:</label>
                         <p class="Value">
                         [% Data.IsVisibleForCustomerStrg %]
