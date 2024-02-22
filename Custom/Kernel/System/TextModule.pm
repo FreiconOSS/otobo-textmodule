@@ -151,7 +151,7 @@ sub TextModuleAdd {
         . "create_time, create_by, change_time, change_by, is_visible_for_customer, time_units) "
         . "VALUES "
         . "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,"
-        . " current_timestamp, ?, current_timestamp, ?, ?) ";
+        . " current_timestamp, ?, current_timestamp, ?, ?, ?) ";
 
     # do the db insert...
     my $DBInsert = $Self->{DBObject}->Do(
