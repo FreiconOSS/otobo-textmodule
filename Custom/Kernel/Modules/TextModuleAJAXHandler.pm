@@ -177,9 +177,11 @@ sub _Widget {
             <div class="Content" id="TextModulesTreeViewContainer"><ul class="TextModulesTreeView">';
     my @keys = keys %{$categoryTree};
     my @sortedKeys = sort @keys;
+
+    my $UserID = $Self->{UserID} || '';
     
     foreach my $treeNode (@sortedKeys) {
-        $out .= _buildTextModuleNode($categoryTree->{$treeNode}, $treeNode, %MemberOf);
+        $out .= _buildTextModuleNode($UserID, $categoryTree->{$treeNode}, $treeNode, %MemberOf);
     }
     $out .= '</ul></div>';
     
@@ -243,17 +245,24 @@ sub _Get {
 }
 
 sub _buildTextModuleNode {
-    my ($dataArray, $key, %MemberOf) = @_;
+    my ($UserID, $dataArray, $key, %MemberOf) = @_;
+    my $UserObject = $Kernel::OM->Get('Kernel::System::User');
     
     @{$dataArray->{'_leafs'}} = sort { alphanumSort($a->{'Name'}, $b->{'Name'}) } @{$dataArray->{'_leafs'}};
+
+    my %Preferences = $UserObject->GetPreferences(
+        UserID => $UserID,
+    );
     
-    my $out = '<li data-jstree=\'{"icon":"fa fa-folder-open-o", "opened":false,"selected":true}\'>' . $key . '<ul>';
+    my $TreeOpened = $Preferences{TextModuleTreeExpandedDefault} || 'false';
+    my $out = '<li data-jstree=\'{"icon":"fa fa-folder-open-o", "opened":' . $TreeOpened . ',"selected":true}\'>' . $key . '<ul>';
+
     my @keys = keys %{$dataArray};
     my @sortedKeys = sort @keys;
     foreach my $dataRowKey (sort @sortedKeys) {
         if ($dataRowKey eq "_leafs") {
         } else {
-            $out .= _buildTextModuleNode($dataArray->{$dataRowKey}, $dataRowKey, %MemberOf);
+            $out .= _buildTextModuleNode($UserID, $dataArray->{$dataRowKey}, $dataRowKey, %MemberOf);
         }
     }
 

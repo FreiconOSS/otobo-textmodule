@@ -24,6 +24,8 @@ sub Data {
         $Self->{Translation}->{'Collapse All'} = 'Alles Einklappen',
         $Self->{Translation}->{'Expand All'} = 'Alles Ausklappen',
         $Self->{Translation}->{'Subcategory of'} = 'Unterkategorie von';
+        $Self->{Translation}->{'Textmodule Widget Default'} = 'Textmodul Anzeige Standardeinstellung';
+        $Self->{Translation}->{'Show tree for text modules expanded or collapsed by default.'} = 'Konfigurieren Sie, ob die Textbausteine alle ein- oder ausgeklappt angezeigt werden sollen.';
 
         return;
 }

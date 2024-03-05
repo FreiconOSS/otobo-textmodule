@@ -324,15 +324,15 @@
             <Hash>
                 <Item Key="Module">Kernel::Output::HTML::Preferences::Generic</Item>
                 <Item Key="PreferenceGroup">Miscellaneous</Item>
-                <Item Key="Label" Translatable="1">Kanban Card Color Selection</Item>
+                <Item Key="Label" Translatable="1">Textmodule Widget Default</Item>
                 <Item Key="Desc" Translatable="1">Show tree for text modules expanded or collapsed by default.</Item>
                 <Item Key="Data">
                     <Hash>
-                        <Item Key="0" Translatable="1">Collapse All</Item>
-                        <Item Key="1" Translatable="1">Expand All</Item>
+                        <Item Key="false" Translatable="1">Collapse All</Item>
+                        <Item Key="true" Translatable="1">Expand All</Item>
                     </Hash>
                 </Item>
-                <Item Key="DataSelected">0</Item>
+                <Item Key="DataSelected">false</Item>
                 <Item Key="PrefKey">TextModuleTreeExpandedDefault</Item>
                 <Item Key="Prio">9100</Item>
                 <Item Key="Active">1</Item>
