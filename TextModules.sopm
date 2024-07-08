@@ -23,6 +23,7 @@
             <Column Name="create_by" Required="true" Type="INTEGER"/>
             <Column Name="change_time" Required="true" Type="DATE"/>
             <Column Name="change_by" Required="true" Type="INTEGER"/>
+            <Column Name="time_units" Required="true" Type="VARCHAR" Size="25"/>
             <Index Name="text_module_name">
                 <IndexColumn Name="name"/>
             </Index>

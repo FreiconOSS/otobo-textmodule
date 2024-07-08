@@ -36,7 +36,6 @@ sub Run {
     my $ConfigObject      = $Kernel::OM->Get('Kernel::Config');
     my $LayoutObject      = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $TextModuleObject  = $Kernel::OM->Get('Kernel::System::TextModule');
-    my $TimeObject        = $Kernel::OM->Get('Kernel::System::Time');
     my $UploadCacheObject = $Kernel::OM->Get('Kernel::System::Web::UploadCache');
     my $ParamObject       = $Kernel::OM->Get('Kernel::System::Web::Request');
 
@@ -388,9 +387,10 @@ sub Run {
 
                 if ( $UploadResult{XMLResultString} ) {
                     my $DownloadFileName = $UploadFileName;
-                    my $TimeString       = $TimeObject->SystemTime2TimeStamp(
-                        SystemTime => $TimeObject->SystemTime(),
+                    my $DateTimeObject = $Kernel::OM->Create(
+                        'Kernel::System::DateTime'
                     );
+                    my $TimeString = $DateTimeObject->ToString();
                     $TimeString       =~ s/\s/\_/g;
                     $DownloadFileName =~ s/\.(.*)$/_ImportResult_$TimeString\.xml/g;
 
@@ -471,9 +471,10 @@ sub Run {
             $FileType    = 'csv';
         }
 
-        my $TimeString = $TimeObject->SystemTime2TimeStamp(
-            SystemTime => $TimeObject->SystemTime(),
+        my $DateTimeObject = $Kernel::OM->Create(
+            'Kernel::System::DateTime'
         );
+        my $TimeString = $DateTimeObject->ToString();
         $TimeString =~ s/\s/\_/g;
         my $FileName = 'TextModuleCategories_' . $TimeString . '.' . $FileType;
 

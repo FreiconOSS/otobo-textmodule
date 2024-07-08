@@ -37,7 +37,6 @@ sub Run {
     my $QueueObject       = $Kernel::OM->Get('Kernel::System::Queue');
     my $StateObject       = $Kernel::OM->Get('Kernel::System::State');
     my $TextModuleObject  = $Kernel::OM->Get('Kernel::System::TextModule');
-    my $TimeObject        = $Kernel::OM->Get('Kernel::System::Time');
     my $TypeObject        = $Kernel::OM->Get('Kernel::System::Type');
     my $ValidObject       = $Kernel::OM->Get('Kernel::System::Valid');
     my $UploadCacheObject = $Kernel::OM->Get('Kernel::System::Web::UploadCache');
@@ -657,9 +656,11 @@ sub Run {
 
                 if ( $UploadResult{XMLResultString} ) {
                     my $DownloadFileName = $UploadFileName;
-                    my $TimeString       = $TimeObject->SystemTime2TimeStamp(
-                        SystemTime => $TimeObject->SystemTime(),
+                    my $DateTimeObject = $Kernel::OM->Create(
+                        'Kernel::System::DateTime'
                     );
+                    my $TimeString = $DateTimeObject->ToString();
+
                     $TimeString       =~ s/\s/\_/g;
                     $DownloadFileName =~ s/\..*?$//g;
                     $DownloadFileName .= "_ImportResult_$TimeString.xml";
@@ -744,9 +745,11 @@ sub Run {
             $FileType    = 'csv';
         }
 
-        my $TimeString = $TimeObject->SystemTime2TimeStamp(
-            SystemTime => $TimeObject->SystemTime(),
+        my $DateTimeObject = $Kernel::OM->Create(
+            'Kernel::System::DateTime'
         );
+        my $TimeString = $DateTimeObject->ToString();
+
         $TimeString =~ s/\s/\_/g;
         my $FileName = 'TextModules_' . $TimeString . '.' . $FileType;
 
