@@ -68,7 +68,7 @@ sub Run {
 
     $Param{FormID} = $Self->{FormID};
 
-    my %Categories = $TextModuleObject->TextModuleCategoryList();
+    my %Categories = $TextModuleObject->TextModuleCategoryList(UserID => $Self->{UserID});
 
     # build ParentCategory list
     my %ParentCategories;
@@ -496,8 +496,9 @@ sub Run {
     $Output .= $LayoutObject->NavigationBar();
 
     my %TextModuleCategoryData = $TextModuleObject->TextModuleCategoryList(
-        Name => $GetParam{Name} || '',
-        Limit => $GetParam{Limit},
+        Name   => $GetParam{Name} || '',
+        Limit  => $GetParam{Limit},
+        UserID => $Self->{UserID},
     );
 
     # output search block

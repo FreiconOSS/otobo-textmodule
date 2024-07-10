@@ -70,6 +70,7 @@ sub new {
     $Self->{StateObject} = $Kernel::OM->Get('Kernel::System::State');
     $Self->{TypeObject} = $Kernel::OM->Get('Kernel::System::Type');
     $Self->{XMLObject} = $Kernel::OM->Get('Kernel::System::XML');
+    $Self->{GroupObject} = $Kernel::OM->Get('Kernel::System::Group');
 
     # load text module extension modules
     my $CustomModule = $Self->{ConfigObject}->Get('TextModule::CustomModule');
@@ -604,7 +605,90 @@ sub TextModuleCategoryList {
         last if ($Param{Limit} && ++$Count >= $Param{Limit});
     }
 
-    return %Result;
+    return %Result if !defined($Param{UserID});
+
+    # Filter text categories by role of user. If user is group admin, return all.
+    my $HasPermission = $Self->{GroupObject}->PermissionCheck(
+        UserID    => $Param{UserID},
+        GroupName => 'admin',
+        Type      => 'rw',
+    );
+
+    return %Result if $HasPermission;
+
+    my $GroupObject = $Kernel::OM->Get('Kernel::System::Group');
+
+    my %UserGroupPermissions = $GroupObject->PermissionUserGet(
+        UserID => $Param{UserID},
+        Type   => 'rw',
+    );
+
+    my %CategoriesWithPermission;
+    for my $CategoryID (keys(%Result)) {
+        
+        my %CategoryData = $Self->TextModuleCategoryGet(
+            ID => $CategoryID
+        );
+        
+        $Param{CategoryID} = $CategoryID;
+
+        next if (!$Self->HasPermission(
+            UserID       => $Param{UserID},
+            NeededGroups => $CategoryData{GroupPermission},
+            NeededRole   => $CategoryData{RolePermission},
+            Category     => $CategoryData{Name},
+        ));
+
+        $CategoriesWithPermission{$CategoryID} = $Result{$CategoryID};
+    }
+
+    return %CategoriesWithPermission;
+}
+
+sub HasPermission {
+    my ($Self, %Param) = @_;
+
+    if (!defined($Param{Category}) || $Param{Category} eq '') {
+        return 1;
+    }
+
+    my %UserGroupPermissions = $Self->{GroupObject}->PermissionUserGet(
+        UserID => $Param{UserID},
+        Type   => 'rw',
+    );
+
+    my @NeededGroupPermissions;
+    if (ref $Param{NeededGroups} eq 'ARRAY') {
+        @NeededGroupPermissions = grep { $_ ne '' } @{$Param{NeededGroups}};
+    } else {
+        @NeededGroupPermissions = ($Param{NeededGroups} ne '') ? ($Param{NeededGroups}) : ();
+    }
+
+    if (defined($Param{NeededRole}) && $Param{NeededRole} ne '') {
+        my $RoleID = $Self->{GroupObject}->RoleLookup(
+            Role => $Param{NeededRole},
+        );
+
+        my %GroupList = $Self->{GroupObject}->PermissionRoleGroupGet(
+            RoleID => $RoleID,
+            Type   => 'rw',
+        );
+
+        push(@NeededGroupPermissions, keys(%GroupList));
+    }
+
+    if (scalar(@NeededGroupPermissions) == 0) {
+        return 1;
+    }
+
+    for my $NeededGroupID (@NeededGroupPermissions) {
+        if (exists($UserGroupPermissions{$NeededGroupID})) {
+            return 1;
+
+        }
+    }
+
+    return 0;
 }
 
 =item TextModuleCategoryAssignmentCounts()
@@ -1358,7 +1442,7 @@ sub TextModuleList {
     my $CacheKey = 'TextModuleList::';
     my @Params;
     foreach my $ParamKey (
-        qw{Result CategoryID TextModuleID QueueID TicketTypeID TicketStateID Customer Public Agent Language ValidID Limit Name}
+        qw{Result CategoryID TextModuleID QueueID TicketTypeID TicketStateID Customer Public Agent Language ValidID Limit Name UserID}
     ) {
         if ($Param{$ParamKey}) {
             push(@Params, $Param{$ParamKey});

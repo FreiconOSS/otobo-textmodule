@@ -92,7 +92,7 @@ sub Run {
     );
 
     # build category selection
-    my %CategoryData = $TextModuleObject->TextModuleCategoryList();
+    my %CategoryData = $TextModuleObject->TextModuleCategoryList(UserID => $Self->{UserID});
     my $CategorySize = ( scalar keys %CategoryData < 10 ) ? keys %CategoryData : 10;
     $Param{TextModuleCategoryStrg} = $LayoutObject->BuildSelection(
         Data     => \%CategoryData,
@@ -145,7 +145,7 @@ sub Run {
     $Param{FormID} = $Self->{FormID};
 
     # build category tree
-    my %Categories    = $TextModuleObject->TextModuleCategoryList();
+    my %Categories    = $TextModuleObject->TextModuleCategoryList(UserID => $Self->{UserID});
     my %CategoryCount = $TextModuleObject->TextModuleCategoryAssignmentCounts();
     $Param{CategoryTree} = $LayoutObject->TextModuleCategoryTree(
         SelectedCategoryID => $GetParam{SelectedCategoryID},
@@ -770,15 +770,37 @@ sub Run {
     my $Output = $LayoutObject->Header();
     $Output .= $LayoutObject->NavigationBar();
 
-    my %TextModuleData = $TextModuleObject->TextModuleList(
+    my %TextModules = $TextModuleObject->TextModuleList(
         CategoryID  => $GetParam{SelectedCategoryID},
         Language    => $GetParam{Language} || '',
         Name        => $GetParam{Name} || '',
         Limit       => $GetParam{Limit},
         Result      => 'HASH',
-        AdminSearch => 1
+        AdminSearch => 0,
+        UserID      => $Self->{UserID} || 1
     );
 
+    my %TextModulesWithPermission;
+
+    #Check permission for text modules
+    for my $TextModuleID (keys(%TextModules)) {
+        my %TextModule = %{$TextModules{$TextModuleID}};
+        
+        my $HasPermission = $TextModuleObject->HasPermission(
+            UserID       => $Self->{UserID},
+            Category     => $TextModule{Category},
+            NeededGroups => $TextModule{NeededGroups},
+            NeededRole   => $TextModule{NeededRole},
+        );
+
+        if ($HasPermission == 1) {
+            $TextModulesWithPermission{$TextModuleID} = $TextModules{$TextModuleID};
+        }
+    }
+
+    #Refill TextModuleData with text modules which have permission
+    %TextModules = %TextModulesWithPermission;
+    
     # output search block
     $LayoutObject->Block(
         Name => 'TextModuleSearch',
@@ -819,7 +841,7 @@ sub Run {
             }
         );
     }
-    $Param{Count} = scalar keys %TextModuleData;
+    $Param{Count} = scalar keys %TextModules;
     $Param{CountNote} =
         ( $GetParam{Limit} && $Param{Count} == $GetParam{Limit} ) ? '(limited)' : '';
 
@@ -834,14 +856,14 @@ sub Run {
     if ( $Param{Count} ) {
         my $Count = 0;
         for my $CurrHashID (
-            sort { $TextModuleData{$a}->{Name} cmp $TextModuleData{$b}->{Name} }
-                keys %TextModuleData
+            sort { $TextModules{$a}->{Name} cmp $TextModules{$b}->{Name} }
+                keys %TextModules
         ) {
             $LayoutObject->Block(
                 Name => 'OverviewListRow',
                 Data => {
-                    %{ $TextModuleData{$CurrHashID} },
-                    Valid => $ValidHash{ $TextModuleData{$CurrHashID}->{ValidID} }
+                    %{ $TextModules{$CurrHashID} },
+                    Valid => $ValidHash{ $TextModules{$CurrHashID}->{ValidID} }
                 }
             );
             $Count++;
