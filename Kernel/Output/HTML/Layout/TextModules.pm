@@ -33,7 +33,9 @@ sub TextModuleCategoryTree {
             Type => 'UNASSIGNED::TextModuleCategory',
         );
     }
-    my %CategoryList = $TextModuleObject->TextModuleCategoryList();
+    
+    my %CategoryList = $TextModuleObject->TextModuleCategoryList(UserID => $Self->{UserID});
+    
     my %CategoryReverseList = reverse %CategoryList;
     my %AllCategoriesData;
     my $Limit = $Param{Limit} || 100;

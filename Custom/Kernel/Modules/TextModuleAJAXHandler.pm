@@ -105,46 +105,22 @@ sub _Widget {
         Type   => "rw",
     );
 
-    my %RoleList =  $GroupObject->PermissionUserRoleGet(
-        UserID => $Self->{UserID},
-    );
-
-    LOOP:
-    foreach my $categoryKey (keys %TextModules) {
-        my $category = ($TextModules{$categoryKey} || '');
+    for my $TextModuleID (keys %TextModules) {
+        my $category = ($TextModules{$TextModuleID} || '');
         my @TreeParts = split /::/, ($category->{Category} || $NoCategoryName);
 
-        # if ($category->{NeededGroups} && !exists($MemberOf{$category->{NeededGroups}})) {
-        #     next LOOP;
-        # }
+        my %TextModule = %{$TextModules{$TextModuleID}};
 
-        # User with this GroupIDs can use this text module category
-        my @PossibleGroupIDs = @{$TextModules{$categoryKey}->{NeededGroups}};
-
-
-        # If no permissions given. All users have permission
-        my $HasPermission = scalar(@PossibleGroupIDs) == 0 ? 1 : 0;
-        for my $GroupID (@PossibleGroupIDs) {
-            if (exists($MemberOf{$GroupID})) {
-                $HasPermission = 1;
-            }
-        }
+        my $HasPermission = $TextModuleObject->HasPermission(
+            UserID       => $Self->{UserID},
+            Category     => $TextModule{Category},
+            NeededGroups => $TextModule{NeededGroups},
+            NeededRole   => $TextModule{NeededRole},
+        );
 
         if (!$HasPermission) {
-            if ($TreeParts[0] ne $NoCategoryName){
-                next LOOP;
-            }
+            next;
         }
-
-        if ($category->{NeededRole}) {
-            foreach (keys %RoleList) {
-                if ($category->{NeededRole} eq $RoleList{$_}) {
-                    goto OK;
-                }
-            }
-            next LOOP;
-        }
-        OK:
 
         my $currentTree = $categoryTree;
 
