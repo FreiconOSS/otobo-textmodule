@@ -186,11 +186,16 @@ sub _Get {
         ID => $ID,
     );
 
-    my %Ticket = $Kernel::OM->Get('Kernel::System::Ticket')->TicketGet(
-        TicketID      => $TicketID,
-        DynamicFields => 1,
-    );
-
+    my %Ticket;
+    
+    if ($TicketID) {
+        %Ticket = $Kernel::OM->Get('Kernel::System::Ticket')->TicketGet(
+            TicketID      => $TicketID,
+            DynamicFields => 1,
+            Silent        => 1,
+        );
+    }
+    
     # replace placeholder in text and subject
     for my $DataKey (qw(TextModule Subject)) {
 

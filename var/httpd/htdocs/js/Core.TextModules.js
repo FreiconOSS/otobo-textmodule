@@ -278,6 +278,158 @@ Core.Addon.TextModules = (function (TargetNS) {
         return;
     }
 
+    function handler (o) {
+        if (window.TextModules_skip) {
+            return;
+        }
+        window.TextModules_skip = true;
+        var ID = $(o.currentTarget).data('module');
+        if (document.compose) {
+            var formObject = document.compose;
+        } else {
+            var formObject = document.Compose;
+        }
+
+        const editorInstance = getCKEditorInstance('RichText');
+
+        if (typeof (editorInstance) !== "undefined") {
+            Core.AJAX.FunctionCall(Core.Config.Get('Baselink'), {
+                Action: 'TextModuleAJAXHandler',
+                Subaction: 'Get',
+                TextModuleID: ID,
+                TicketID: formObject.TicketID.value,
+            }, function (resp) {
+                var subject = formObject.Subject;
+                if (subject.value && subject.value.length > 0) {
+                    subject.value = subject.value + ' ' + resp.Subject;
+                } else {
+                    subject.value = resp.Subject;
+                }
+
+                insertHtmlContent('RichText', resp.TextModule);
+
+                if (resp.IsVisibleForCustomer !== null && resp.IsVisibleForCustomer !== 0 && resp.IsVisibleForCustomer !== '0') {
+                    $('input#IsVisibleForCustomer').prop("checked", resp.IsVisibleForCustomer === '1' || resp.IsVisibleForCustomer === 1);
+                }
+
+                if (resp.TimeUnits && resp.TimeUnits !== '') {
+                    $('#TimeUnits').val(resp.TimeUnits);
+                }
+
+                setTimeout(function () {
+                    window.TextModules_skip = false;
+                }, 1000);
+            }, 'json');
+        }
+    }
+
+    function insertHtmlContent(editorID, htmlContent) {
+        const editorInstance = getCKEditorInstance(editorID);
+
+        if (editorInstance) {
+            editorInstance.model.change(writer => {
+                // Konvertiere HTML-Inhalt in das CKEditor-Modell
+                const viewFragment = editorInstance.data.processor.toView(htmlContent);
+                const modelFragment = editorInstance.data.toModel(viewFragment);
+
+                // Füge den Inhalt an der aktuellen Cursor-Position ein
+                const selection = editorInstance.model.document.selection;
+                editorInstance.model.insertContent(modelFragment, selection);
+            });
+        } else {
+            console.error('CKEditor-Instanz nicht gefunden.');
+        }
+    }
+
+    function getCKEditorInstance(editorID) {
+        return CKEditorInstances[editorID] || null;
+    }
+
+    function update() {
+        var CustomerKey = '';
+        $('.CustomerTicketRadio').each(function (i, ele) {
+            if ($(ele).prop('checked') === true) {
+                CustomerKey = $('#CustomerKey_' + $(ele).val()).val();
+                return false;
+            }
+        });
+
+        if (CustomerKey === '') {
+            //$('#TextModulesWidget').html('');
+            //return;
+        }
+
+        var d = $('select#Dest').val();
+        if (d === null) {
+            d = "";
+        }
+
+        var params = {
+            Action: 'TextModuleAJAXHandler',
+            Subaction: 'Widget',
+            Frontend: 'A',
+            CustomerUserID: CustomerKey,
+        };
+
+        if (d) {
+            params.QueueID = d.split('||')[0];
+        }
+
+        Core.AJAX.FunctionCall(Core.Config.Get('Baselink'), params, function (Response) {
+                $('#TextModulesWidget').html(Response);
+                $('#searchfield').keydown(function () {
+                    $('#TextModulesTreeViewContainer').jstree().search($('#searchfield').val());
+                })
+
+                setTimeout(function () {
+                    $('#TextModulesTreeViewContainer').on('after_open.jstree', function () {
+                        $('div#TextModulesWidget').find('.jstree-leaf').off('click', handler);
+                        $('div#TextModulesWidget').find('.jstree-leaf').on('click', handler);
+                    });
+                    $('#TextModulesTreeViewContainer').on('redraw.jstree', function () {
+                        $('div#TextModulesWidget').find('.jstree-leaf').off('click', handler);
+                        $('div#TextModulesWidget').find('.jstree-leaf').on('click', handler);
+                    });
+                    $('#TextModulesTreeViewContainer')
+                        .jstree({
+                            core: {
+                                animation: 70,
+                                dblclick_toggle: true,
+                                expand_selected_onload: false,
+                                themes: {
+                                    name: 'InputField',
+                                    variant: 'Tree',
+                                    icons: true,
+                                    dots: true,
+                                }
+                            },
+                            types: {
+                                default: {
+                                    icon: 'fa fa-file-text-o'
+                                },
+                                category: {
+                                    icon: 'fa fa-folder-open-o'
+                                },
+                            },
+                            search: {
+                                show_only_matches: true
+                            },
+                            plugins: ['types', 'search'],
+
+                        });
+                    $('#ButtonExpandAll').click(function () {
+                        $('#TextModulesTreeViewContainer').jstree().open_all();
+                    });
+                    $('#ButtonCollapseAll').click(function () {
+                        $('#TextModulesTreeViewContainer').jstree().close_all();
+                    });
+
+                }, 100)
+            }, 'text'
+        );
+
+    };
+
     TargetNS.GetTextmodule = function (ID) {
         var Frontend = 'Agent',
             QueueID,
@@ -548,170 +700,47 @@ Core.Addon.TextModules = (function (TargetNS) {
         } else {
             TargetNS.InitTree();
         }
+
+        var resizeCKEDIT = false;
+        window.TextModules_skip = false;
+
+        if ($('div#TextModulesWidget').length === 0) {
+            if ($('.LayoutFixedSidebar').length === 0) {
+                var oldContent = $("<div class='ContentColumn' />");
+                if ($('#WidgetArticle').length !== 0) { // Exception für AgentTicke
+                    $(".LayoutPopup").find('.Content').first().children().each(function () {
+                        $(this).appendTo(oldContent);
+                    });
+                    $(".LayoutPopup").find('.Content').html('');
+                }
+                $(".LayoutPopup").find('.Content').addClass('SidebarLast');
+                $(".LayoutPopup").find('.Content').addClass('LayoutFixedSidebar');
+                $(".LayoutPopup").find('.Content').prepend($("<div class='SidebarColumn'/>"));
+                $(".LayoutPopup").find('.Content').append(oldContent);
+            }
+            $('.SidebarColumn').append('<div id="TextModulesWidget" class="WidgetSimple"></div>');
+        }
+
+        setTimeout(function () {
+            var fn = Core.Agent.CustomerSearch.RemoveCustomerTicket;
+            Core.Agent.CustomerSearch.RemoveCustomerTicket = function (p) {
+                $('#TextModulesWidget').html('');
+                fn(p);
+            };
+        });
+
+        Core.App.Subscribe('Event.Agent.CustomerSearch.GetCustomerInfo.Callback', function (cid) {
+            update();
+        });
+        $('select#Dest').on('change', function () {
+            update();
+        })
+
+        update();
+
         return true;
     }
 
+    Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
     return TargetNS;
 }(Core.Addon.TextModules || {}));
-
-(function () {
-
-    var resizeCKEDIT = false;
-    window.TextModules_skip = false;
-    var handler = function (o) {
-        if (window.TextModules_skip) {
-            return;
-        }
-        window.TextModules_skip = true;
-        var ID = $(o.currentTarget).data('module');
-        if (document.compose) {
-            var formObject = document.compose;
-        } else {
-            var formObject = document.Compose;
-        }
-
-        if (typeof (CKEDITOR) !== "undefined" && CKEDITOR.instances.RichText) {
-            Core.AJAX.FunctionCall(Core.Config.Get('Baselink'), {
-                Action: 'TextModuleAJAXHandler',
-                Subaction: 'Get',
-                TextModuleID: ID,
-                TicketID: formObject.TicketID.value,
-            }, function (resp) {
-                var subject = formObject.Subject;
-
-                subject.value = subject.value + ' ' + resp.Subject;
-                CKEDITOR.instances.RichText.insertHtml(resp.TextModule);
-
-                if (resp.IsVisibleForCustomer !== null && resp.IsVisibleForCustomer !== 0 && resp.IsVisibleForCustomer !== '0') {
-                    $('input#IsVisibleForCustomer').prop("checked", resp.IsVisibleForCustomer === '1' || resp.IsVisibleForCustomer === 1);
-                }
-
-                if (resp.TimeUnits && resp.TimeUnits !== '') {
-                    $('#TimeUnits').val(resp.TimeUnits);
-                }
-
-                setTimeout(function () {
-                    window.TextModules_skip = false;
-                }, 1000);
-            }, 'json');
-        }
-    }
-    var update = function update() {
-        var CustomerKey = '';
-        $('.CustomerTicketRadio').each(function (i, ele) {
-            if ($(ele).prop('checked') === true) {
-                CustomerKey = $('#CustomerKey_' + $(ele).val()).val();
-                return false;
-            }
-        });
-
-        if (CustomerKey === '') {
-            //$('#TextModulesWidget').html('');
-            //return;
-        }
-
-        var d = $('select#Dest').val();
-        if (d === null) {
-            d = "";
-        }
-
-        var params = {
-            Action: 'TextModuleAJAXHandler',
-            Subaction: 'Widget',
-            Frontend: 'A',
-            CustomerUserID: CustomerKey,
-        };
-
-        if (d) {
-            params.QueueID = d.split('||')[0];
-        }
-
-        Core.AJAX.FunctionCall(Core.Config.Get('Baselink'), params, function (Response) {
-                $('#TextModulesWidget').html(Response);
-                $('#searchfield').keydown(function () {
-                    $('#TextModulesTreeViewContainer').jstree().search($('#searchfield').val());
-                })
-
-                setTimeout(function () {
-                    $('#TextModulesTreeViewContainer').on('after_open.jstree', function () {
-                        $('div#TextModulesWidget').find('.jstree-leaf').off('click', handler);
-                        $('div#TextModulesWidget').find('.jstree-leaf').on('click', handler);
-                    });
-                    $('#TextModulesTreeViewContainer').on('redraw.jstree', function () {
-                        $('div#TextModulesWidget').find('.jstree-leaf').off('click', handler);
-                        $('div#TextModulesWidget').find('.jstree-leaf').on('click', handler);
-                    });
-                    $('#TextModulesTreeViewContainer')
-                        .jstree({
-                            core: {
-                                animation: 70,
-                                dblclick_toggle: true,
-                                expand_selected_onload: false,
-                                themes: {
-                                    name: 'InputField',
-                                    variant: 'Tree',
-                                    icons: true,
-                                    dots: true,
-                                }
-                            },
-                            types: {
-                                default: {
-                                    icon: 'fa fa-file-text-o'
-                                },
-                                category: {
-                                    icon: 'fa fa-folder-open-o'
-                                },
-                            },
-                            search: {
-                                show_only_matches: true
-                            },
-                            plugins: ['types', 'search'],
-
-                        });
-                    $('#ButtonExpandAll').click(function () {
-                        $('#TextModulesTreeViewContainer').jstree().open_all();
-                    });
-                    $('#ButtonCollapseAll').click(function () {
-                        $('#TextModulesTreeViewContainer').jstree().close_all();
-                    });
-
-                }, 100)
-            }, 'text'
-        );
-
-    };
-
-    if ($('div#TextModulesWidget').length === 0) {
-        if ($('.LayoutFixedSidebar').length === 0) {
-            var oldContent = $("<div class='ContentColumn' />");
-            if ($('#WidgetArticle').length !== 0) { // Exception für AgentTicke
-                $(".LayoutPopup").find('.Content').first().children().each(function () {
-                    $(this).appendTo(oldContent);
-                });
-                $(".LayoutPopup").find('.Content').html('');
-            }
-            $(".LayoutPopup").find('.Content').addClass('SidebarLast');
-            $(".LayoutPopup").find('.Content').addClass('LayoutFixedSidebar');
-            $(".LayoutPopup").find('.Content').prepend($("<div class='SidebarColumn'/>"));
-            $(".LayoutPopup").find('.Content').append(oldContent);
-        }
-        $('.SidebarColumn').append('<div id="TextModulesWidget" class="WidgetSimple"></div>');
-    }
-
-    setTimeout(function () {
-        var fn = Core.Agent.CustomerSearch.RemoveCustomerTicket;
-        Core.Agent.CustomerSearch.RemoveCustomerTicket = function (p) {
-            $('#TextModulesWidget').html('');
-            fn(p);
-        };
-    });
-
-    Core.App.Subscribe('Event.Agent.CustomerSearch.GetCustomerInfo.Callback', function (cid) {
-        update();
-    });
-    $('select#Dest').on('change', function () {
-        update();
-    })
-
-    update();
-}());
