@@ -644,57 +644,6 @@ Core.Addon.TextModules = (function (TargetNS) {
     }
 
     TargetNS.Init = function () {
-
-        // get action (first for use with tabs)
-        var Action = $('#TextModulesSelectionContainer').closest('form').find('input[name=Action]').val();
-        // get action in TicketEmail / Phone and customer frontend
-        if (Action === undefined) {
-            Action = $('.ContentColumn').find('input[name=Action]').val();
-        }
-
-        // don't use AJAX refresh in CustomerTicketMessage
-        if (Action !== undefined) {
-
-            if ($('#TypeID').length) {
-                // bind ajax reload on TypeID dropdown
-                $('#TypeID').bind('change', function () {
-                    RefreshTextmodules();
-                });
-            }
-
-            if ($('#NewQueueID').length) {
-                // bind ajax reload on NewQueueID dropdown (AgentTicketActionCommon)
-                $('#NewQueueID').bind('change', function () {
-                    RefreshTextmodules();
-                });
-            } else if ($('#Dest').length) {
-                // bind ajax reload on Dest dropdown (AgentTicketPhone)
-                $('#Dest').bind('change', function () {
-                    RefreshTextmodules();
-                });
-            }
-
-            if ($('#SelectedCustomerUser').length) {
-                // bind ajax reload on SelectedCustomerUser dropdown (AgentTicketPhone / AgentTicketEmail)
-                $('#SelectedCustomerUser').bind('change', function () {
-                    RefreshTextmodules();
-                });
-            }
-
-            if ($('#NextStateID').length) {
-                // bind ajax reload on NextState dropdown (AgentTicketPhone / AgentTicketEmail)
-                $('#NextStateID').bind('change', function () {
-                    RefreshTextmodules();
-                });
-            }
-
-            $('#TextModules .WidgetAction.Toggle').bind('click', function () {
-                // load text modules on first expand
-                if ($('#TextModules').hasClass('Collapsed') && $TMTable.find('div.TextModule').length == 0)
-                    RefreshTextmodules();
-            });
-        }
-
         if (Core.Config.Get('TextModulesDisplayType') == 'List') {
             TargetNS.InitList();
         } else {
@@ -739,6 +688,57 @@ Core.Addon.TextModules = (function (TargetNS) {
         update();
 
         return true;
+
+        // Never used - maybe for later use if decided to change textmodules if fields like queue changes
+        // // get action (first for use with tabs)
+        // var Action = $('#TextModulesSelectionContainer').closest('form').find('input[name=Action]').val();
+        // // get action in TicketEmail / Phone and customer frontend
+        // if (Action === undefined) {
+        //     Action = $('.ContentColumn').find('input[name=Action]').val();
+        // }
+        //
+        // // don't use AJAX refresh in CustomerTicketMessage
+        // if (Action !== undefined) {
+        //
+        //     if ($('#TypeID').length) {
+        //         // bind ajax reload on TypeID dropdown
+        //         $('#TypeID').bind('change', function () {
+        //             RefreshTextmodules();
+        //         });
+        //     }
+        //
+        //     if ($('#NewQueueID').length) {
+        //         // bind ajax reload on NewQueueID dropdown (AgentTicketActionCommon)
+        //         $('#NewQueueID').bind('change', function () {
+        //             RefreshTextmodules();
+        //         });
+        //     } else if ($('#Dest').length) {
+        //         // bind ajax reload on Dest dropdown (AgentTicketPhone)
+        //         $('#Dest').bind('change', function () {
+        //             RefreshTextmodules();
+        //         });
+        //     }
+        //
+        //     if ($('#SelectedCustomerUser').length) {
+        //         // bind ajax reload on SelectedCustomerUser dropdown (AgentTicketPhone / AgentTicketEmail)
+        //         $('#SelectedCustomerUser').bind('change', function () {
+        //             RefreshTextmodules();
+        //         });
+        //     }
+        //
+        //     if ($('#NextStateID').length) {
+        //         // bind ajax reload on NextState dropdown (AgentTicketPhone / AgentTicketEmail)
+        //         $('#NextStateID').bind('change', function () {
+        //             RefreshTextmodules();
+        //         });
+        //     }
+        //
+        //     $('#TextModules .WidgetAction.Toggle').bind('click', function () {
+        //         // load text modules on first expand
+        //         if ($('#TextModules').hasClass('Collapsed') && $TMTable.find('div.TextModule').length == 0)
+        //             RefreshTextmodules();
+        //     });
+        // }
     }
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
