@@ -677,6 +677,9 @@ sub HasPermission {
         push(@NeededGroupPermissions, keys(%GroupList));
     }
 
+    # Remove empty, nested arrays
+    @NeededGroupPermissions = grep { ref($_) eq 'ARRAY' && @$_ } @NeededGroupPermissions;
+
     if (scalar(@NeededGroupPermissions) == 0) {
         return 1;
     }

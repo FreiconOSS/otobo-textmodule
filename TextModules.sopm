@@ -56,14 +56,6 @@
                 <IndexColumn Name="object_id"/>
             </Index>
         </TableCreate>
-        <TableCreate Name="text_module_object_link">
-            <Column Name="id" Required="true" Type="INTEGER" PrimaryKey="true" AutoIncrement="true"/>
-            <Column Name="name" Required="true" Type="VARCHAR" Size="2000"/>
-            <Column Name="create_time" Required="true" Type="DATE"/>
-            <Column Name="create_by" Required="true" Type="INTEGER"/>
-            <Column Name="change_time" Required="true" Type="DATE"/>
-            <Column Name="change_by" Required="true" Type="INTEGER"/>
-        </TableCreate>
         <TableCreate Name="text_module_category">
             <Column Name="id" Required="true" Type="INTEGER" PrimaryKey="true" AutoIncrement="true"/>
             <Column Name="name" Required="true" Type="VARCHAR" Size="2000"/>
