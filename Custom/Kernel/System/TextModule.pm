@@ -420,7 +420,7 @@ sub TextModuleCategoryUpdate {
                         SQL  =>
                             'UPDATE text_module_category SET name = ?, change_time = current_timestamp, group_permission = ?, role_permission = ?,  '
                                 . ' change_by = ? WHERE id = ?',
-                        Bind => [ \$NewCategoryName, \$Param{GroupPermission}, \$Param{RolePermission}, \$Param{UserID}, \$CategoryID ],
+                        Bind => [ \$NewCategoryName, \$GroupPermissionStrg, \$Param{RolePermission}, \$Param{UserID}, \$CategoryID ],
                     );
                 }
             }
