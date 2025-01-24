@@ -51,7 +51,7 @@ jobs:
           version: ${{ env.VERSION }}
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.NAME }}
           path: ${{ env.NAME }}-${{ env.VERSION }}.opm
