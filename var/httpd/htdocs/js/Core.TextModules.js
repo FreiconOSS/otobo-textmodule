@@ -678,9 +678,31 @@ Core.Addon.TextModules = (function (TargetNS) {
             };
         });
 
-        Core.App.Subscribe('Event.Agent.CustomerSearch.GetCustomerInfo.Callback', function (cid) {
-            update();
-        });
+        setTimeout(function () {
+            var TargetNode = document.getElementById('TextModulesWidget');
+
+            if (TargetNode) {
+                var Observer = new MutationObserver(function (MutationsList, Observer) {
+                    MutationsList.forEach(function (Mutation) {
+                        if (Mutation.type === 'childList') {
+                            var HasChildren = $(TargetNode).children().length > 0;
+                            if (!HasChildren) {
+                                console.log('TextModulesWidget wurde geleert!');
+                                setTimeout(() => {
+                                    update();
+                                }, 200);
+                            }
+                        }
+                    });
+                });
+
+                Observer.observe(TargetNode, {
+                    childList: true,
+                    subtree: false
+                });
+            }
+        }, 200);
+
         $('select#Dest').on('change', function () {
             update();
         })
