@@ -669,12 +669,21 @@ sub HasPermission {
             Role => $Param{NeededRole},
         );
 
-        my %GroupList = $Self->{GroupObject}->PermissionRoleGroupGet(
-            RoleID => $RoleID,
-            Type   => 'rw',
-        );
+        if ($RoleID) {
+            my %GroupList = $Self->{GroupObject}->PermissionRoleGroupGet(
+                RoleID => $RoleID,
+                Type   => 'rw',
+            );
 
-        push(@NeededGroupPermissions, keys(%GroupList));
+            push(@NeededGroupPermissions, keys(%GroupList));
+        }
+        else {
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "TextModule::HasPermission: Role '$Param{NeededRole}' not found in system"
+                    . " - role permission check skipped for category '$Param{Category}'.",
+            );
+        }
     }
     
     # Remove empty, nested arrays
