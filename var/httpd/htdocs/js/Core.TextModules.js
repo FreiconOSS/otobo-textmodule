@@ -336,6 +336,10 @@ Core.Addon.TextModules = (function (TargetNS) {
                 const selection = editorInstance.model.document.selection;
                 editorInstance.model.insertContent(modelFragment, selection);
             });
+
+            // move the cursor into the editor and bring it into view (OTRS-1201)
+            editorInstance.editing.view.focus();
+            editorInstance.editing.view.scrollToTheSelection();
         } else {
             console.error('CKEditor-Instanz nicht gefunden.');
         }
