@@ -1585,9 +1585,19 @@ sub TextModuleList {
         if (!$Param{Result}) {
             $ResultHash{ $Data[0] } = $Data[1] . " (" . $Data[7] . ")";
         } elsif ($Param{Result} eq 'HASH') {
-            my @GroupPermissions = [];
+            my @GroupPermissions;
             if ($Data[13]) {
-                @GroupPermissions = @{decode_json($Data[13])};
+                my $Decoded = eval { decode_json($Data[13]) };
+                if ( ref $Decoded eq 'ARRAY' ) {
+                    @GroupPermissions = @{$Decoded};
+                }
+                else {
+                    $Self->{LogObject}->Log(
+                        Priority => 'error',
+                        Message  =>
+                            "TextModuleList: group_permission of text module $Data[0] is not a JSON array; ignoring group restriction.",
+                    );
+                }
             }
 
             $ResultHash{ $Data[0] }->{ID} = $Data[0];
