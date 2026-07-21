@@ -691,7 +691,6 @@ Core.Addon.TextModules = (function (TargetNS) {
                         if (Mutation.type === 'childList') {
                             var HasChildren = $(TargetNode).children().length > 0;
                             if (!HasChildren) {
-                                console.log('TextModulesWidget wurde geleert!');
                                 setTimeout(() => {
                                     update();
                                 }, 200);
