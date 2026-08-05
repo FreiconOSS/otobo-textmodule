@@ -276,6 +276,7 @@ sub Run {
             SelectedID => $TextModuleData{Language}
                 || $GetParam{Language}
                 || $Self->{UserLanguage}
+                || $Self->{Session}{UserLanguage}
                 || '',
             Class => 'Modernize',
         );
@@ -484,6 +485,7 @@ sub Run {
                 HTMLQuote  => 0,
                 SelectedID => $GetParam{LanguageEdit}
                     || $Self->{UserLanguage}
+                    || $Self->{Session}{UserLanguage}
                     || '',
                 Class => 'Modernize',
             );
