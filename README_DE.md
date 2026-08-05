@@ -1,6 +1,6 @@
 # Text Modules
 
-Das Add-On "Text Modules" bietet die Möglichkeit, vordefinierte Textbausteine in Eingabeformularen innerhalb von Kategorien zu verwenden. 
+Das Add-On "Text Modules" bietet die Möglichkeit, vordefinierte Textbausteine in Eingabeformularen innerhalb von Kategorien zu verwenden.
 Diese Textbausteine werden häufig verwendet und können daher standardisiert eingesetzt werden.
 
 

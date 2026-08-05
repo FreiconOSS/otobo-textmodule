@@ -1,6 +1,6 @@
 # Text Modules
 
-The Addon TextModules provides the possibility to use predefined text snippets in input forms within categories. 
+The Addon TextModules provides the possibility to use predefined text snippets in input forms within categories.
 These text snippets are frequently used and can therefore be used in a standardized manner.
 
 
@@ -33,7 +33,7 @@ existing modules easier by filtering or using the tree view.
 
 The text modules can be used to add an information to the subject and/or the body
 of a message. The body is always mandatory.
-Additional settings are: 
+Additional settings are:
 
 - Is Visible for customer
 - Category Assignment
@@ -43,4 +43,3 @@ Additional settings are:
 *Figure 5 - Modules without category*
 
 If no category assignment is chosen, the text module can be found in "Without Category" (Figure 5 - Widget on the right)
-
